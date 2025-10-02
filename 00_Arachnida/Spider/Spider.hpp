@@ -1,3 +1,6 @@
+#ifndef SPIDER_HPP
+#define SPIDER_HPP
+
 #include <iostream>
 
 using namespace std;
@@ -8,22 +11,16 @@ using namespace std;
 		-r -l [N], indicates the maximum depth level of the recursive download. Default is 5\n\
 		-p [PATH], indicates the path where the downloaded files will be saved.Default: ./data"
 
-void	error(string s) {
-	cerr << s << endl;
-	exit(EXIT_FAILURE);
-}
-
-void	scrap(string url, int level, string path) {
-
-}
-
-int	main(int ac, char **av) {
+class Spider
+{
+private:
 	string	url;
-	string	path = "./data";
-	int		level = -1;
+	string	path;
+	int		depth;
 
-	if (ac < 2)
-		error("No argument\n\n" USAGE);
+public:
+	Spider(int ac, char **av);
+	~Spider();
+};
 
-
-}
+#endif
