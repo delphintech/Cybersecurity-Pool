@@ -21,6 +21,8 @@ private:
 public:
 	Spider(int ac, char **av);
 	~Spider();
+
+	void	check(string opt);
 };
 
 #endif

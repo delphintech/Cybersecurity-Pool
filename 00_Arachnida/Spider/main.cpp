@@ -6,23 +6,23 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/02 11:39:00 by dabouab           #+#    #+#             */
-/*   Updated: 2025/10/02 11:49:31 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/10/02 12:49:11 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include "Spider.hpp"
 
-void	error(string s) {
-	cerr << s << endl;
-	exit(EXIT_FAILURE);
-}
-
 int	main(int ac, char **av) {
-	string	url;
-	string	path = "./data";
-	int		level = -1;
-
-	if (ac < 2)
-		error("No argument\n\n" USAGE);
+	if (ac < 2) {
+		cerr << "No argument\n\n" << USAGE << endl;
+		return (EXIT_FAILURE);
+	}
+	
+	try {
+		Spider	spider(ac, av);	
+	} catch (exception e) {
+		cerr << e.what() << "\n\n" << USAGE << endl;
+		return (EXIT_FAILURE);
+	}
 }
