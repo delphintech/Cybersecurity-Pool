@@ -34,7 +34,7 @@ $(NAME)	:	$(OBJS)
 	@printf "$(RESET)"
 
 clean	:                 
-	@rm -f $(OBJS)
+	@rm -f $(OBJS) $(DEPS)
 	@printf "Objects deleted ... ❌\n"
 
 fclean	:	clean
