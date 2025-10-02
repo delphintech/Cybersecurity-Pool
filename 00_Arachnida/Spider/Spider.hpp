@@ -2,6 +2,8 @@
 #define SPIDER_HPP
 
 #include <iostream>
+#include "curl/curl.h"
+#include <libxml/HTMLparser.h>
 
 using namespace std;
 
