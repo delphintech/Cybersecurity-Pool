@@ -79,7 +79,18 @@ void	Spider::scrap(const string url) {
 		throw exception();
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     CURLcode res = curl_easy_perform(curl);
-	cout << res << endl;
+	
+	// TODO: parse to get each image url
+
+	// TODO: download every images
+
+	if (this->depth > 0) {
+		// TODO: parse to get each link if depth > 0
+	
+		this->depth--;
+		// TODO: scrap every url if not already in this->done
+	}
+
 
     curl_easy_cleanup(curl);
 }
