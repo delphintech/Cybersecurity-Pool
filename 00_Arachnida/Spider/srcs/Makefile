@@ -1,6 +1,9 @@
 # Compiler
 COMP = c++ -g -Werror -Wall -Wextra -I/usr/include/libxml2
 
+# Librairies
+LIBS = -lcurl -lxml2
+
 # Nom du programme
 NAME = spider
 
@@ -21,7 +24,7 @@ all	: $(NAME)
 	@$(COMP) -c $< -o $@
 
 $(NAME)	:	$(OBJS)
-	@$(COMP) -o $(NAME) $(OBJS)
+	@$(COMP) -o $(NAME) $(OBJS) $(LIBS)
 	@printf "$(COLOR)"
 	@printf "  _____ .___  _ .___   .____  .___\n"
 	@printf " (      /   \\ | /   \`  /      /   \\ \n"
@@ -41,3 +44,6 @@ fclean	:	clean
 re	:	fclean all
 
 .PHONY: all clean fclean re
+
+test:
+	./spider https://www.scrapingcourse.com/pagination

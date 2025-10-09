@@ -6,7 +6,7 @@
 #    By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/09 12:54:37 by dabouab           #+#    #+#              #
-#    Updated: 2025/10/09 14:14:56 by dabouab          ###   ########.fr        #
+#    Updated: 2025/10/09 17:43:54 by dabouab          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ term:
 	docker exec -it spider bash
 
 clean:
-	docker run --rm -v "$(PWD)/srcs":/srcs -w /srcs spider make clean
+	docker run --rm -v "$(PWD)/srcs":/srcs -w /srcs spider make fclean
 	docker stop spider
 
 fclean: clean
