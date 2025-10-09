@@ -1,49 +1,37 @@
-# Compiler
-COMP = c++ -g -Werror -Wall -Wextra -MMD
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/10/09 12:54:37 by dabouab           #+#    #+#              #
+#    Updated: 2025/10/09 14:14:56 by dabouab          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-# Nom du programme
-NAME = spider
+NAME=spider
 
-# Couleur
-COLOR = \e[1;31m
-RESET = \e[0m
+all: $(NAME)
 
-# Liste des sources
-SRCS += Spider.cpp main.cpp
+$(NAME):
+	docker build -t spider .
+	docker run -it --name spider -v "$(PWD)/srcs":/srcs spider
 
-# Liste des ojets
-OBJS = $(SRCS:.cpp=.o)
+stop:
+	docker stop spider
 
-# Liste des dependences 
-DEPS = $(SRCS:.cpp=.d)
+term:
+	docker exec -it spider bash
 
-all	: $(NAME)
+clean:
+	docker run --rm -v "$(PWD)/srcs":/srcs -w /srcs spider make clean
+	docker stop spider
 
-# Compile les objects avec les flags
-%.o: %.cpp
-	@$(COMP) -c $< -o $@
+fclean: clean
+	docker rm spider
 
-$(NAME)	:	$(OBJS)
-	@$(COMP) -o $(NAME) $(OBJS)
-	@printf "$(COLOR)"
-	@printf "  _____ .___  _ .___   .____  .___\n"
-	@printf " (      /   \\ | /   \`  /      /   \\ \n"
-	@printf "  \`--.  |,_-' | |    | |__.   |__-'\n"
-	@printf "     |  |     | |    | |      |  \\\\ \n"
-	@printf "\\\___.'  /     / /---/  /----/ /   \\ \n"
-	@printf "$(RESET)"
+prune:
+	docker system prune -a
 
-clean	:                 
-	@rm -f $(OBJS) $(DEPS)
-	@printf "Objects deleted ... ❌\n"
-
-fclean	:	clean
-	@rm -f $(NAME)
-	@printf "Exec deleted ...... ❌\n"
-
-re	:	fclean all
-
-.PHONY: all clean fclean re
-
-# Inclue les dependences (⚠ add -MMD to compile)
--include $(DEPS)
+.PHONY: clean fclean stop all prune
