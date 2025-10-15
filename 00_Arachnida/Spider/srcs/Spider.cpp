@@ -5,7 +5,7 @@ const string	Spider::get_url() const {
 	return this->url;
 }
 
-Spider::Spider(int ac, char **av) : path("./data/"), depth(0) {
+Spider::Spider(int ac, char **av) : path("./data/"), depth(0), done({}) {
 	string	opt;
 	string	arg;
 
@@ -53,6 +53,8 @@ void	Spider::check(string opt) {
 		throw invalid_argument("Invalid depth (must be between 0 and 1000)");
 	// Check for folder path validity
 	int	check = mkdir(this->path.c_str(), 0777);
+	if (this->path.back() != '/')
+		this->path += "/";
 	if (check < 0 && errno != EEXIST)
 		throw invalid_argument("Unable to create directory \"" + this->path + "\"");
 	// Check if URL is valid
@@ -69,67 +71,14 @@ void	Spider::check(string opt) {
 	}
 }
 
-size_t write_to_string(void *ptr, size_t size, size_t nmemb, void *userdata) {
-    std::string *str = static_cast<std::string*>(userdata);
-    str->append(static_cast<char*>(ptr), size * nmemb);
-    return size * nmemb;
-}
-
-// TODO: explain in Notion
-vector<string>	parse_get_all(string content, string Xpath, string extract) {
-	htmlDocPtr 		doc;
-	vector<string>	results = {};
-
-	doc = htmlReadMemory(content.c_str(), content.length(), nullptr, nullptr, HTML_PARSE_NOERROR);
-	if (!doc)
-        throw runtime_error("Failed to parse HTML document");
-	
-  // Instantiate XPath context
-	xmlXPathContextPtr context = xmlXPathNewContext(doc);
-	if (!context) {
-		xmlFreeDoc(doc);
-        throw runtime_error("Failed to parse HTML document");
-	}
-
-	// Fetch all elements matching the given XPath
-  	xmlXPathObjectPtr elements = xmlXPathEvalExpression((xmlChar *)Xpath, context);
-	if (!elements) {
-		xmlXPathFreeContext(context);
-		xmlFreeDoc(doc);
-		throw runtime_error("Failed to parse HTML document");
-	}
-
-	if (definitionSpanElements->nodesetval == NULL)
-		return result;
-	
-	// Iterate over the elements to store them in the vector
-	for (int i = 0; i < definitionSpanElements->nodesetval->nodeNr; ++i)
-	{
-		// Get element from list
-		xmlNodePtr element = elemets->nodesetval->nodeTab[i];
-
-        xmlXPathSetContextNode(element, context);
-
-		// extract data
-		string data = xpath_extract_string(context, extract);
-
-		if (result.find(data) == result.end())
-			results.push(data);
-	}
-
-    // Free resources
-    xmlXPathFreeObject(elements);
-    xmlXPathFreeContext(context);
-    xmlFreeDoc(doc);
-
-	return results;
-}
 
 void	Spider::scrap(const string url) {
-	vector<string>	urls;
+	vector<string>	links;
 	vector<string>	imgs;
 	string			content;
 
+	if (this->done.find(url) != this->done.end())
+		return ;
 	// Get the page
 	CURL *curl = curl_easy_init();
 	if(!curl)
@@ -142,18 +91,51 @@ void	Spider::scrap(const string url) {
 	if (res != CURLE_OK)
 		throw runtime_error(url + " is invalid or not responding");
 
-	// TODO: parse to get each image url
+	curl_easy_cleanup(curl);
 
+	// Parse to get each image url
+	imgs = parse_get_all(content, "//img[@src]", "src")
 
-	// TODO: download every images
-
-	if (this->depth > 0) {
-		// TODO: parse to get each link if depth > 0
-	
-		this->depth--;
-		// TODO: scrap every url if not already in this->done
+	// Download every images
+	for (int i = 0; i < imgs.size(); i++) {
+		this->download_img(imgs[i]);
 	}
 
+	// Push url to done list
+	this->done.push_back(url);
 
-    curl_easy_cleanup(curl);
+	if (this->depth > 0) {
+		// Parse to get each link in the page
+		links = parse_get_all(content, "//a[@href]", "href");
+		this->depth--;
+		// Scrap every links
+		for (int i = 0; i < links.size(); i++) {
+			this->scrap(links[i]);
+		}
+	}
+}
+
+void		Spider::download_img(const string url) {
+	string	filename;
+
+	filename = get_img_name(url);
+	if (filename.empty())
+		return ;
+	
+	filename = this->path + filename;
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+        fclose(fp);
+
+        if (res != CURLE_OK)
+            throw runtime_error(url + "Could not download: " + url);
+	}
+
+    return 0;
 }
