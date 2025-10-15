@@ -1,14 +1,14 @@
 #ifndef SPIDER_HPP
 #define SPIDER_HPP
 
-#include "utils.hpp"
+#include "./utils.hpp"
 
 class Spider {
 private:
 	string			url;
 	string			path;
-	vector<string>	done;
 	int				depth;
+	vector<string>	done;
 
 public:
 	Spider(int ac, char **av);

@@ -6,7 +6,7 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/02 11:39:00 by dabouab           #+#    #+#             */
-/*   Updated: 2025/10/09 17:29:57 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/10/15 18:04:44 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,11 @@ int	main(int ac, char **av) {
 		Spider	spider(ac, av);
 		
 		spider.scrap(spider.get_url());
-	} catch (const exception &e) {
+	} catch ( invalid_argument &e) {
 		cerr << e.what() << "\n\n" << USAGE << endl;
+		return (EXIT_FAILURE);
+	} catch (const exception &e) {
+		cerr << e.what() << "\n" << endl;
 		return (EXIT_FAILURE);
 	}
 }

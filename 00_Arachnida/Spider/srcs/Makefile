@@ -12,7 +12,7 @@ COLOR = \e[1;31m
 RESET = \e[0m
 
 # Liste des sources
-SRCS += Spider.cpp main.cpp
+SRCS += Spider.cpp utils.cpp main.cpp
 
 # Liste des ojets
 OBJS = $(SRCS:.cpp=.o)

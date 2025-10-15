@@ -15,19 +15,19 @@ Spider::Spider(int ac, char **av) : path("./data/"), depth(0), done({}) {
 		if (arg[0] == '-') {
 			if (arg.length() != 2)
 				throw invalid_argument("Bad option call");
-			if (arg[0] == 'r') {
+			if (arg[1] == 'r') {
 				if (opt.find("r") != string::npos)
 					throw invalid_argument("Duplication option r");
 				opt += "r";
 				if (opt.find("l") == string::npos)
 					depth = 5;
-			} else if (arg[0] == 'l') {
+			} else if (arg[1] == 'l') {
 				if (opt.find("l") != string::npos)
 					throw invalid_argument("Duplication option l");
 				opt += "l";
 				depth = stoi(av[++i]);
-			} else if (arg[0] == 'p') {
-				if (opt.find("l") != string::npos)
+			} else if (arg[1] == 'p') {
+				if (opt.find("p") != string::npos)
 					throw invalid_argument("Duplication option p");
 				opt += "p";
 				path = av[++i];
@@ -46,6 +46,7 @@ Spider::Spider(int ac, char **av) : path("./data/"), depth(0), done({}) {
 Spider::~Spider() {}
 
 void	Spider::check(string opt) {
+
 	// Check if options validity
 	if (opt.find("l") != string::npos && opt.find("r") == string::npos)
 		throw invalid_argument("Depth option without recursive");
@@ -58,17 +59,19 @@ void	Spider::check(string opt) {
 	if (check < 0 && errno != EEXIST)
 		throw invalid_argument("Unable to create directory \"" + this->path + "\"");
 	// Check if URL is valid
-	CURL *curl = curl_easy_init();
-	if(curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, this->url.c_str());
+	if (url.empty())
+    	throw invalid_argument("No URL");
+	// CURL *curl = curl_easy_init();
+	// if(curl) {
+	// 	curl_easy_setopt(curl, CURLOPT_URL, this->url.c_str());
 	
-		CURLcode res = curl_easy_perform(curl);
-		if (res != CURLE_OK) {
-			curl_easy_cleanup(curl);
-			throw std::invalid_argument("URL invalid or not responding");
-		}
-		curl_easy_cleanup(curl);
-	}
+	// 	CURLcode res = curl_easy_perform(curl);
+	// 	if (res != CURLE_OK) {
+	// 		curl_easy_cleanup(curl);
+	// 		throw std::invalid_argument("URL invalid or not responding");
+	// 	}
+	// 	curl_easy_cleanup(curl);
+	// }
 }
 
 
@@ -77,7 +80,7 @@ void	Spider::scrap(const string url) {
 	vector<string>	imgs;
 	string			content;
 
-	if (this->done.find(url) != this->done.end())
+	if (find(this->done.begin(), this->done.end(), url) != this->done.end())
 		return ;
 	// Get the page
 	CURL *curl = curl_easy_init();
@@ -94,10 +97,10 @@ void	Spider::scrap(const string url) {
 	curl_easy_cleanup(curl);
 
 	// Parse to get each image url
-	imgs = parse_get_all(content, "//img[@src]", "src")
+	imgs = parse_get_all(content, "//img[@src]", "src");
 
 	// Download every images
-	for (int i = 0; i < imgs.size(); i++) {
+	for (int i = 0; i < (int)imgs.size(); i++) {
 		this->download_img(imgs[i]);
 	}
 
@@ -109,7 +112,7 @@ void	Spider::scrap(const string url) {
 		links = parse_get_all(content, "//a[@href]", "href");
 		this->depth--;
 		// Scrap every links
-		for (int i = 0; i < links.size(); i++) {
+		for (int i = 0; i < (int)links.size(); i++) {
 			this->scrap(links[i]);
 		}
 	}
@@ -136,6 +139,4 @@ void		Spider::download_img(const string url) {
         if (res != CURLE_OK)
             throw runtime_error(url + "Could not download: " + url);
 	}
-
-    return 0;
 }

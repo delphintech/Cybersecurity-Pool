@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fstream>
 #include "curl/curl.h"
+#include <libxml/xpath.h>
 #include <libxml/HTMLparser.h>
 
 using namespace std;
@@ -19,6 +20,7 @@ using namespace std;
 
 size_t			write_to_string(void *ptr, size_t size, size_t nmemb, void *userdata);
 size_t			write_data(void* ptr, size_t size, size_t nmemb, FILE* stream);
+string			xpath_extract_string(xmlXPathContextPtr context, const char* xpath_expr);
 vector<string>	parse_get_all(string content, string Xpath, string attribute);
 string			get_img_name(string	img_url);
 
