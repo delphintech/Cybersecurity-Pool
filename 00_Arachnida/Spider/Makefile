@@ -28,7 +28,7 @@ RESET = \e[0m
 all: $(NAME)
 
 # Créer l'exécutable wrapper
-$(NAME): $(VENV) install
+$(NAME): $(VENV) install $(MAIN)
 	@printf "🔨 Creating executable wrapper...\n"
 	@echo '#!/bin/bash' > $(NAME)
 	@echo 'DIR="$$(cd "$$(dirname "$${BASH_SOURCE[0]}")" && pwd)"' >> $(NAME)
@@ -50,7 +50,7 @@ activate: $(VENV)
 
 # 1️⃣ Créer et activer l'environnement virtuel
 $(VENV):
-	@printf "🛠️ Activation de l'environnement virtuel ... \n"
+	@printf "🛠️  Activation de l'environnement virtuel ... \n"
 	@test -d $(VENV) || python3 -m venv $(VENV)
 	@$(PIP) install --upgrade pip
 
@@ -71,3 +71,7 @@ clean:
 re: clean all
 
 .PHONY: activate install run clean re
+
+test: $(NAME)
+	./$(NAME) https://fr.wikihow.com/Accueil
+
