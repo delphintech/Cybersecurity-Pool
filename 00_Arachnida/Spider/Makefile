@@ -70,5 +70,5 @@ re: clean all
 .PHONY: activate install run clean re
 
 test: $(NAME)
-	./$(NAME) https://fr.wikihow.com/Accueil
+	./$(NAME) https://fr.wikipedia.org/
 

@@ -60,15 +60,32 @@ class Spider:
 		if self.path[-1] != '/':
 			self.path += "/"
 
+		''' Check for url accessibility '''
+		headers = {
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+						"AppleWebKit/537.36 (KHTML, like Gecko) "
+						"Chrome/115.0.0.0 Safari/537.36"
+		}
+		res = requests.head(self.url, headers=headers)
+		if not res.ok:
+			raise ValueError(f"🚨 URL Error {res.status_code}")
+
+
+
 	def scrap(self, url, depth=None):
 		elements = []
 		links = []
+		headers = {
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+						"AppleWebKit/537.36 (KHTML, like Gecko) "
+						"Chrome/115.0.0.0 Safari/537.36"
+		}
 
 		if url in self.done:
 			return
 		
 		''' Get the page content '''
-		res = requests.get(url)
+		res = requests.get(url, headers=headers)
 		if not res.ok:
 			return
 		
@@ -84,9 +101,10 @@ class Spider:
 			if not filename or x == None:
 				continue
 			filepath = self.path + filename
-			img_url = urllib.parse.urljoin(self.url, x)
+			img_url = urllib.parse.urljoin(url, x)
 			with open(filepath, 'wb') as file:
-				file.write(requests.get(img_url).content)
+				file.write(requests.get(img_url, headers=headers).content)
+				Spider.imgs += 1
 
 		self.done.append(url)
 		elements.clear()
@@ -96,6 +114,7 @@ class Spider:
 			elements = soup.find_all("a")
 			links = [img.get("href") for img in elements]
 			for x in links:
-				if x != None and not x.startswith("#") and not x.startswith("mailto:"):
+				if x != None and not x.startswith("#") and not x.startswith("mailto:") \
+					and not x.startswith("javascript"):
 					link_url = urllib.parse.urljoin(self.url, x)
 					self.scrap(link_url, depth - 1)
