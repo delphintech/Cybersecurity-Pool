@@ -1,0 +1,1 @@
+USAGE = "usage: ./scorpion FILE1 [FILE2 ...]\n"

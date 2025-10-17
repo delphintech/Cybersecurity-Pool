@@ -1,5 +1,5 @@
 # Nom du projet
-NAME = Spider
+NAME = Scoprion
 
 # Répertoire de l'environnement virtuel
 VENV = venv
@@ -17,7 +17,7 @@ SRC_DIR = srcs
 MAIN = $(SRC_DIR)/main.py
 
 # Couleur
-COLOR = \e[1;31m
+COLOR = \e[1;32m
 RESET = \e[0m
 
 # ===========================================================
@@ -36,10 +36,11 @@ $(NAME): $(VENV) install $(MAIN)
 	@echo 'python "$$DIR/$(MAIN)" "$$@"' >> $(NAME)
 	@chmod +x $(NAME)
 	@printf "$(COLOR)"
-	@printf " ▗▄▄▖▄▄▄▄  ▄    ▐▌▗▞▀▚▖ ▄▄▄ \n"
-	@printf "▐▌   █   █ ▄    ▐▌▐▛▀▀▘█    \n"
-	@printf " ▝▀▚▖█▄▄▄▀ █ ▗▞▀▜▌▝▚▄▄▖█    \n"
-	@printf "▗▄▄▞▘█     █ ▝▚▄▟▌        \n"
+	@printf " ▗▄▄▖▗▞▀▘ ▄▄▄   ▄▄▄ ▄▄▄▄  ▄  ▄▄▄  ▄▄▄▄  \n"
+	@printf "▐▌   ▝▚▄▖█   █ █    █   █ ▄ █   █ █   █ \n"
+	@printf " ▝▀▚▖    ▀▄▄▄▀ █    █▄▄▄▀ █ ▀▄▄▄▀ █   █ \n"
+	@printf "▗▄▄▞▘               █     █             \n"
+	@printf "                    ▀                      \n"                 
 	@printf "$(RESET)"
 
 # pour lancer le shell de l'environnement
