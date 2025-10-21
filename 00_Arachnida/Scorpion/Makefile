@@ -1,5 +1,5 @@
 # Nom du projet
-NAME = Scoprion
+NAME = Scorpion
 
 # Répertoire de l'environnement virtuel
 VENV = venv
@@ -70,6 +70,5 @@ re: clean all
 
 .PHONY: activate install run clean re
 
-test: $(NAME)
-	./$(NAME) https://fr.wikihow.com/Accueil
-
+test:
+	./$(NAME) data/Helene_Schjerfbeck.jpg  data/Kerouac_On_the_Road_scroll.jpg data/Wikimedia-logo.svg data/Wikimedia-logo.svg.png  data/wikipedia.png
