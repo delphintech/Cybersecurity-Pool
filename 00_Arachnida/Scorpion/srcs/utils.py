@@ -34,8 +34,3 @@ def	meta(file: str):
 			data = data.decode()
 		print(f"{tag}: {data}")
 	image.close()
-	
-
-
-# def display_meta(meta: dict):
-# 	print("")

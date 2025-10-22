@@ -1,5 +1,5 @@
 # Nom du projet
-NAME = Scorpion
+NAME = ft_otp
 
 # Répertoire de l'environnement virtuel
 VENV = venv
@@ -17,7 +17,7 @@ SRC_DIR = srcs
 MAIN = $(SRC_DIR)/main.py
 
 # Couleur
-COLOR = \e[1;32m
+COLOR = \e[107;30m
 RESET = \e[0m
 
 # ===========================================================
@@ -28,20 +28,19 @@ RESET = \e[0m
 all: $(NAME)
 
 # Créer l'exécutable wrapper
-$(NAME): $(VENV) install $(MAIN)
+$(NAME): $(VENV) install
 	@printf "🔨 Creating executable wrapper...\n"
 	@echo '#!/bin/bash' > $(NAME)
 	@echo 'DIR="$$(cd "$$(dirname "$${BASH_SOURCE[0]}")" && pwd)"' >> $(NAME)
 	@echo 'source "$$DIR/$(VENV)/bin/activate"' >> $(NAME)
 	@echo 'python "$$DIR/$(MAIN)" "$$@"' >> $(NAME)
 	@chmod +x $(NAME)
-	@printf "$(COLOR)"
-	@printf " ▗▄▄▖▗▞▀▘ ▄▄▄   ▄▄▄ ▄▄▄▄  ▄  ▄▄▄  ▄▄▄▄  \n"
-	@printf "▐▌   ▝▚▄▖█   █ █    █   █ ▄ █   █ █   █ \n"
-	@printf " ▝▀▚▖    ▀▄▄▄▀ █    █▄▄▄▀ █ ▀▄▄▄▀ █   █ \n"
-	@printf "▗▄▄▞▘               █     █             \n"
-	@printf "                    ▀                      \n"                 
-	@printf "$(RESET)"
+	@printf "$(COLOR)                $(RESET)\n"
+	@printf "$(COLOR)  ▐▘▗     ▗     $(RESET)\n"
+	@printf "$(COLOR)  ▜▘▜▘  ▛▌▜▘▛▌  $(RESET)\n"
+	@printf "$(COLOR)  ▐ ▐▖▄▖▙▌▐▖▙▌  $(RESET)\n"
+	@printf "$(COLOR)            ▌   $(RESET)\n"
+	@printf "$(COLOR)                $(RESET)\n"       
 
 # pour lancer le shell de l'environnement
 activate: $(VENV)
@@ -61,7 +60,7 @@ install: $(VENV)
 
 # Supprime les fichiers temporaires et l'environnement virtuel
 clean: 
-	@printf "🧹 Cleaning ..."
+	@printf "🧹 Cleaning ...\n"
 	@rm -rf $(VENV) $(NAME)
 	@find . -type d -name "__pycache__" -exec rm -rf {} +
 
