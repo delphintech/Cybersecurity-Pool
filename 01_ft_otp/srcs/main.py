@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import utils
+import os
 
 def main():
 	args = sys.argv[1:]
-	if args != 2:
+	if len(args) != 2:
 		print("Wrong number of arguments\n\n"  + utils.USAGE)
 		sys.exit(1)
 	
@@ -14,9 +15,12 @@ def main():
 			sys.exit(1)
 		utils.store_key(args[1])
 	elif args[0] == "-k":
+		if not os.access(args[1], os.R_OK):
+			print("Please enter a valid file\n\n" + utils.USAGE)
+			sys.exit(1)
 		key = utils.decrypt_key(args[1])
-		if key:
-			utils.generate_pwd(key)
+		otp = utils.generate_pwd(key)
+		print(otp)
 	else:
 		print("Invalid arguments\n\n" + utils.USAGE)
 
