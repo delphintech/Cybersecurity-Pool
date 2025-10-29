@@ -1,24 +1,29 @@
 NAME=ft_onion
 
-all: $(NAME)
+all: build run
 
-$(NAME):    
+build:
+	@printf "🔨 Building image %s...\n" $(NAME)
 	docker build -t $(NAME) .
-	docker run -it --name $(NAME)
-	
+
+run: build
+	docker run --network=host --name $(NAME) $(NAME)
+
+start:
+	docker start $(NAME)
+
 stop:    
-	docker stop $(NAME)
-	
+	@docker stop $(NAME) || true
+
 term:    
 	docker exec -it $(NAME) bash
 	
-stop:    
-	docker stop $(NAME)
-	
 clean:    
-	docker rm $(NAME)
-	
+	docker rm $(NAME) || true
+
 prune:    
 	docker system prune -a
+
+re: clean build run
 	
 .PHONY: clean fclean stop all prune
