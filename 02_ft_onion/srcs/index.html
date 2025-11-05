@@ -53,8 +53,23 @@
 			color: #888;
 		}
 
-		#background-music {
-			display: none; /* Hidden by default */
+		button {
+			background: none;
+			color: #0f0;
+			border: 2px solid #0f0;
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-family: 'Courier New', Courier, monospace;
+			font-size: 1rem;
+			cursor: pointer;
+			text-shadow: 0 0 5px #0f0;
+			transition: all 0.2s ease-in-out;
+		}
+
+		button:hover {
+			background-color: #0f0;
+			color: #000;
+			box-shadow: 0 0 20px #0f0;
 		}
 	</style>
 </head>
@@ -65,46 +80,60 @@
             <p id="oracle-message">Loading...</p>
         </div>
         <div class="footer">
-            <p>Refresh for more wisdom.</p>
+            <button id="refresh-btn">Ask Again</button>
         </div>
     </div>
 
-    <!-- Optional: Background music loop -->
-    <audio id="background-music" loop>
-        <source src="Echoes-of-Time.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-
     <script>
-		// Array of pre-defined Oracle fortunes
 		const fortunes = [
 			"The shadows are not always what they seem.",
 			"The code you seek is hidden in plain sight.",
-			"When you least expect it, a path will appear.",
-			"Silence speaks louder than words.",
+			"When you least expect it, a segfault will appear.",
+			"Crashes speaks louder than codes.",
 			"Trust in the unknown, for it holds answers.",
 			"The world is a cipher, waiting to be decoded.",
 			"Do not fear the dark; it is where you are found.",
 			"In the labyrinth, the answer lies within you.",
 			"The truth is encoded in the stars, not the ground.",
-			"To move forward, one must first move within."
+			"To move forward, one must first move within.",
+			"The data whispers secrets to those who listen.",
+			"A single glitch can reveal a greater pattern.",
+			"The stars have seen your search history.",
+			"Your path is being recalculated — stay online.",
+			"The simulation is stable... for now.",
+			"Your destiny just updated to version 2.0.",
+			"The answer was cached long before you asked.",
+			"The void is typing a response...",
+			"Beware the bug disguised as destiny.",
+			"Sometimes, the system must crash to be reborn.",
+			"Your timeline is syncing across realities.",
+			"You are both the question and the query.",
+			"The end is not the end — just a redirect.",
+			"The light at the end of the tunnel might be LED.",
+			"Reality is under maintenance. Try again later.",
+			"The next clue hides behind your reflection.",
+			"You’ve been here before, but under another username.",
+			"Even the shadows have their own stories to tell.",
+			"One line of forgotten code could change everything.",
+			"Your choices echo across more worlds than you know."
 		];
 
-		// Function to get a random fortune
 		function getRandomFortune() {
-			const randomIndex = Math.floor(Math.random() * fortunes.length);
-			return fortunes[randomIndex];
+			return fortunes[Math.floor(Math.random() * fortunes.length)];
 		}
 
-		// Display the fortune when the page loads
-		window.onload = () => {
+		function displayFortune() {
 			const oracleMessage = document.getElementById("oracle-message");
-			oracleMessage.textContent = getRandomFortune();
-			
-			// Play background music (optional, toggle as desired)
-			const music = document.getElementById("background-music");
-			music.play();
-		};
+			oracleMessage.style.opacity = 0;
+			setTimeout(() => {
+				oracleMessage.textContent = getRandomFortune();
+				oracleMessage.style.opacity = 1;
+			}, 300);
+		}
+
+		window.onload = () => { displayFortune(); };
+
+		document.getElementById("refresh-btn").addEventListener("click", displayFortune);
 	</script>
 </body>
 </html>

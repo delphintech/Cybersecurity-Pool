@@ -11,6 +11,7 @@ run: build
 
 start:
 	docker start $(NAME)
+	docker exec $(NAME) cat /etc/tor/hidden_service/hostname
 
 stop:    
 	@docker stop $(NAME) || true
