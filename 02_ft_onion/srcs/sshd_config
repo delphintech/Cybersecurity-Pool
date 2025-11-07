@@ -31,12 +31,12 @@ Port 4242
 # Authentication:
 
 #LoginGraceTime 2m
-#PermitRootLogin prohibit-password
+PermitRootLogin prohibit-password
 #StrictModes yes
 #MaxAuthTries 6
 #MaxSessions 10
 
-#PubkeyAuthentication yes
+PubkeyAuthentication yes
 
 # Expect .ssh/authorized_keys2 to be disregarded by default in future.
 #AuthorizedKeysFile     .ssh/authorized_keys .ssh/authorized_keys2
@@ -55,12 +55,12 @@ Port 4242
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
-#PasswordAuthentication yes
+PasswordAuthentication yes
 #PermitEmptyPasswords no
 
 # Change to yes to enable challenge-response passwords (beware issues with
 # some PAM modules and threads)
-ChallengeResponseAuthentication no
+# ChallengeResponseAuthentication no
 
 # Kerberos options
 #KerberosAuthentication no
@@ -93,7 +93,7 @@ X11Forwarding yes
 #X11UseLocalhost yes
 #PermitTTY yes
 PrintMotd no
-#PrintLastLog yes
+PrintLastLog yes
 #TCPKeepAlive yes
 #PermitUserEnvironment no
 #Compression delayed
