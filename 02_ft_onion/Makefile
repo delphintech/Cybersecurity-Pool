@@ -15,6 +15,9 @@ start:
 stop:    
 	@docker stop $(NAME) || true
 
+link:
+	@docker exec ft_onion cat /var/lib/tor/hidden_service/hostname
+
 term:    
 	docker exec -it $(NAME) bash
 	
@@ -27,3 +30,8 @@ prune:
 re: clean build run
 	
 .PHONY: clean fclean stop all prune
+
+tor:
+	@docker exec ft_onion service tor restart
+	Echo "TOR restarted ..."
+	@MAKE link
