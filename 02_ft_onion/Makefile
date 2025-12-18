@@ -7,7 +7,7 @@ build:
 	docker build -t $(NAME) .
 
 run: build
-	docker run --network=host --name $(NAME) $(NAME)
+	docker run --add-host host.docker.internal:host-gateway --name $(NAME) $(NAME)
 
 start:
 	docker start $(NAME)
