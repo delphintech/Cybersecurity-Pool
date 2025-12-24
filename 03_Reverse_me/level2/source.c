@@ -6,12 +6,13 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:55:35 by dabouab           #+#    #+#             */
-/*   Updated: 2025/12/23 18:05:23 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/12/24 17:48:05 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void	no() {
 	printf("Nope.");
@@ -25,21 +26,31 @@ void	ok() {
 
 int	main(void) {
 	char	input[32];
-	char	buf[9]
+	char	buf[9];
+	char	temp[3];
 	int 	ret;
 
 	printf("Please enter key: ");
-	if (scanf("%s", &input[0]) == 1) {
-		if (input[1] == '0')
-			if (input[0] == '0')
+	if (scanf("%23s", &input[0]) == 1) {
+		if (input[1] == '0')  {
+			if (input[0] == '0') {
 				memset(buf, 0, 9);
-				buf[0] = "d"
+				buf[0] = 'd';
 				if (strlen(&buf[0]) >= 8)
-				else
-					
-			else 
+					printf("impossible");
+				else {
+					if (2 < strlen(&input[0])) {
+						temp[0] = input[2];
+						temp[1] = input[3];
+						temp[2] = input[4];
+						printf("%s", &temp[0]);
+					} else {
+						printf("jump 378");
+				}
+			}
+			} else
 				no();
-		else
+		} else 
 			no();
 	} else 
 		no();
