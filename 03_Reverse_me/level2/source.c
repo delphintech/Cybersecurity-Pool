@@ -6,7 +6,7 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:55:35 by dabouab           #+#    #+#             */
-/*   Updated: 2025/12/26 16:04:47 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/12/26 17:16:59 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,19 @@ void	ok() {
 }
 
 int	main(void) {
-	char	input[24];
-	char	buf[9];
-	char	temp[3];
 	int 	i;
 	int		j;
+	char	temp[3];
+	char	buf[9];
+	char	input[24];
 
 	printf("Please enter key: ");
 	if (scanf("%23s", &input[0]) == 1) {
 		if (input[1] == '0')  {
 			if (input[0] == '0') {
-				memset(buf, 0, 9);
+				memset(&buf[0], 0, 9);
 				buf[0] = 'd';
+				buf[9] = 0;
 				i = 2;
 				j = 1;
 				while (strlen(&buf[0]) <= 8) {

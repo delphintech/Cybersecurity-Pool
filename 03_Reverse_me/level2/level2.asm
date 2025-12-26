@@ -47,8 +47,8 @@
    0x00001382 <+178>:	mov    DWORD PTR [esp+0x4],0x0
    0x0000138a <+186>:	mov    DWORD PTR [esp+0x8],0x9
    0x00001392 <+194>:	call   0x10b0 <memset@plt>
-   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = buffer = "d"
-   0x0000139b <+203>:	mov    BYTE PTR [ebp-0x36],0x0         # 0x36 = 0 
+   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = buffer[0] = "d"
+   0x0000139b <+203>:	mov    BYTE PTR [ebp-0x36],0x0         # 0x36 = buffer[9] = 0
    0x0000139f <+207>:	mov    DWORD PTR [ebp-0x14],0x2        # 0x14 = 2 (i counter)
    0x000013a6 <+214>:	mov    DWORD PTR [ebp-0x10],0x1        # 0x10 = 1 (j counter)
    0x000013ad <+221>:	mov    ebx,DWORD PTR [ebp-0x40]        # ⚪ Loop start
@@ -71,7 +71,7 @@
    0x000013e1 <+273>:	mov    ecx,eax                         
    0x000013e3 <+275>:	mov    eax,DWORD PTR [ebp-0x48]        # eax = 0x48 = 2
    0x000013e6 <+278>:	cmp    eax,ecx                         # compare strlen(input) with eax 
-   0x000013e8 <+280>:	setb   al                              # set if below    al (low bit eax) => 0x48 < strlen(input) ? al = 1 : al = 0 
+   0x000013e8 <+280>:	setb   al                              # set al = 1 if below => 0x48 < strlen(input) ? al = 1 : al = 0 
    0x000013eb <+283>:	mov    BYTE PTR [ebp-0x41],al
    0x000013ee <+286>:	mov    al,BYTE PTR [ebp-0x41]         # 🟧 
    0x000013f1 <+289>:	test   al,0x1                         # test (al & 1) == 1 so Zero flag = 0
