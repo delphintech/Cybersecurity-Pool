@@ -23,7 +23,7 @@
    0x00001324 <+84>:	mov    ebx,DWORD PTR [ebp-0x40]
    0x00001327 <+87>:	call   0x1220 <no>                        # Else scanf != 1 => No() 🚫
    0x0000132c <+92>:	movsx  ecx,BYTE PTR [ebp-0x34]            # 🟥 take input[1]
-   0x00001330 <+96>:	mov    eax,0x30                           
+   0x00001330 <+96>:	mov    eax,0x30                           # eax = 30 ("0")
    0x00001335 <+101>:	cmp    eax,ecx                         # Compare input[1] with "0" (ascii 30)
    0x00001337 <+103>:	je     0x1345 <main+117>               # If equal (input[1] == "0") jump 🟦
    0x0000133d <+109>:	mov    ebx,DWORD PTR [ebp-0x40]        
@@ -47,11 +47,11 @@
    0x00001382 <+178>:	mov    DWORD PTR [esp+0x4],0x0
    0x0000138a <+186>:	mov    DWORD PTR [esp+0x8],0x9
    0x00001392 <+194>:	call   0x10b0 <memset@plt>
-   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = "d"
+   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = "d" (= atoi reloop)
    0x0000139b <+203>:	mov    BYTE PTR [ebp-0x36],0x0         # 0x36 = 0
-   0x0000139f <+207>:	mov    DWORD PTR [ebp-0x14],0x2        # 0x14 = 2
+   0x0000139f <+207>:	mov    DWORD PTR [ebp-0x14],0x2        # 0x14 = 2 (3 reloop)
    0x000013a6 <+214>:	mov    DWORD PTR [ebp-0x10],0x1        # 0x10 = 1
-   0x000013ad <+221>:	mov    ebx,DWORD PTR [ebp-0x40]
+   0x000013ad <+221>:	mov    ebx,DWORD PTR [ebp-0x40]        # ⚪ Loop start
    0x000013b0 <+224>:	lea    ecx,[ebp-0x1d]                  # set ecx = 0x1d = "d"
    0x000013b3 <+227>:	mov    eax,esp                        
    0x000013b5 <+229>:	mov    DWORD PTR [eax],ecx
@@ -74,32 +74,32 @@
    0x000013e8 <+280>:	setb   al                              # set if below    al (low bit eax) => 0x48 < strlen(input) ? al = 1 : al = 0 
    0x000013eb <+283>:	mov    BYTE PTR [ebp-0x41],al
    0x000013ee <+286>:	mov    al,BYTE PTR [ebp-0x41]         # 🟧 
-   0x000013f1 <+289>:	test   al,0x1                         # test (al & 1) == 1 so Zero flal = 0
-   0x000013f3 <+291>:	jne    0x13fe <main+302>              #  jne => jump if Zero Flag = 0 🟩
-   0x000013f9 <+297>:	jmp    0x144a <main+378>              # else (0x48 > strlen(input)  🟪
-   0x000013fe <+302>:	mov    ebx,DWORD PTR [ebp-0x40]       # 🟩 
-   0x00001401 <+305>:	mov    eax,DWORD PTR [ebp-0x14]
-   0x00001404 <+308>:	mov    al,BYTE PTR [ebp+eax*1-0x35]
-   0x00001408 <+312>:	mov    BYTE PTR [ebp-0x39],al         
-   0x0000140b <+315>:	mov    eax,DWORD PTR [ebp-0x14]
-   0x0000140e <+318>:	mov    al,BYTE PTR [ebp+eax*1-0x34]
-   0x00001412 <+322>:	mov    BYTE PTR [ebp-0x38],al
-   0x00001415 <+325>:	mov    eax,DWORD PTR [ebp-0x14]
-   0x00001418 <+328>:	mov    al,BYTE PTR [ebp+eax*1-0x33]
-   0x0000141c <+332>:	mov    BYTE PTR [ebp-0x37],al
-   0x0000141f <+335>:	lea    eax,[ebp-0x39]
-   0x00001422 <+338>:	mov    DWORD PTR [esp],eax
-   0x00001425 <+341>:	call   0x10d0 <atoi@plt>
-   0x0000142a <+346>:	mov    cl,al
-   0x0000142c <+348>:	mov    eax,DWORD PTR [ebp-0x10]
-   0x0000142f <+351>:	mov    BYTE PTR [ebp+eax*1-0x1d],cl
-   0x00001433 <+355>:	mov    eax,DWORD PTR [ebp-0x14]
-   0x00001436 <+358>:	add    eax,0x3
-   0x00001439 <+361>:	mov    DWORD PTR [ebp-0x14],eax
-   0x0000143c <+364>:	mov    eax,DWORD PTR [ebp-0x10]
+   0x000013f1 <+289>:	test   al,0x1                         # test (al & 1) == 1 so Zero flag = 0
+   0x000013f3 <+291>:	jne    0x13fe <main+302>              # jne => jump if Zero Flag = 0 🟩
+   0x000013f9 <+297>:	jmp    0x144a <main+378>              # else (0x48 > strlen(input))  🟪
+   0x000013fe <+302>:	mov    ebx,DWORD PTR [ebp-0x40]       # 🟩 ebx = 0x40 = 0x5d24
+   0x00001401 <+305>:	mov    eax,DWORD PTR [ebp-0x14]           # eax = 0x14 = 2
+   0x00001404 <+308>:	mov    al,BYTE PTR [ebp+eax*1-0x35]       # al = ebp-0x35 + eax (0x35 = input[0] & eax = 2) = input[eax]
+   0x00001408 <+312>:	mov    BYTE PTR [ebp-0x39],al             # load in new variable 0x39= buf[0] = input[eax]
+   0x0000140b <+315>:	mov    eax,DWORD PTR [ebp-0x14]           # reload 2
+   0x0000140e <+318>:	mov    al,BYTE PTR [ebp+eax*1-0x34]       # al = input[eax + 1]
+   0x00001412 <+322>:	mov    BYTE PTR [ebp-0x38],al             # in buf [1]
+   0x00001415 <+325>:	mov    eax,DWORD PTR [ebp-0x14]           # reload 2
+   0x00001418 <+328>:	mov    al,BYTE PTR [ebp+eax*1-0x33]       # al = input[eax + 2]
+   0x0000141c <+332>:	mov    BYTE PTR [ebp-0x37],al             # in buf[2]
+   0x0000141f <+335>:	lea    eax,[ebp-0x39]                     # eax = 0x39 = buffer
+   0x00001422 <+338>:	mov    DWORD PTR [esp],eax 
+   0x00001425 <+341>:	call   0x10d0 <atoi@plt>                  # atoi(input[eax...eax + 2])
+   0x0000142a <+346>:	mov    cl,al                              # cl = first 8 bits of atoi (aoit & 0xff)
+   0x0000142c <+348>:	mov    eax,DWORD PTR [ebp-0x10]           # eax = 0x10 = 1
+   0x0000142f <+351>:	mov    BYTE PTR [ebp+eax*1-0x1d],cl       # 0x1d[eax = 1] = cl
+   0x00001433 <+355>:	mov    eax,DWORD PTR [ebp-0x14]           # eax = 0x14 = 2
+   0x00001436 <+358>:	add    eax,0x3                            # eax = 3
+   0x00001439 <+361>:	mov    DWORD PTR [ebp-0x14],eax           # 0x14 = eax = 3
+   0x0000143c <+364>:	mov    eax,DWORD PTR [ebp-0x10]           
    0x0000143f <+367>:	add    eax,0x1
-   0x00001442 <+370>:	mov    DWORD PTR [ebp-0x10],eax
-   0x00001445 <+373>:	jmp    0x13ad <main+221> 
+   0x00001442 <+370>:	mov    DWORD PTR [ebp-0x10],eax           # 0x10 = 1
+   0x00001445 <+373>:	jmp    0x13ad <main+221>                  # jump (loop) ⚪
    0x0000144a <+378>:	mov    ebx,DWORD PTR [ebp-0x40]        # 🟪
    0x0000144d <+381>:	mov    eax,DWORD PTR [ebp-0x10]
    0x00001450 <+384>:	mov    BYTE PTR [ebp+eax*1-0x1d],0x0
