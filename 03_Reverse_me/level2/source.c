@@ -6,7 +6,7 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:55:35 by dabouab           #+#    #+#             */
-/*   Updated: 2025/12/26 15:19:59 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/12/26 16:04:47 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	ok() {
 }
 
 int	main(void) {
-	char	input[32];
+	char	input[24];
 	char	buf[9];
 	char	temp[3];
 	int 	i;

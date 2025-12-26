@@ -6,10 +6,13 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:55:40 by dabouab           #+#    #+#             */
-/*   Updated: 2025/12/18 15:55:42 by dabouab          ###   ########.fr       */
+/*   Updated: 2025/12/26 16:04:40 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	main(void) {
-	
+	char	input[24];
+
+	printf("Please enter key: ");
+	scanf("%23s");
 }
