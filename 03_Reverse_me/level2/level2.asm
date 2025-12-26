@@ -47,20 +47,20 @@
    0x00001382 <+178>:	mov    DWORD PTR [esp+0x4],0x0
    0x0000138a <+186>:	mov    DWORD PTR [esp+0x8],0x9
    0x00001392 <+194>:	call   0x10b0 <memset@plt>
-   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = "d" (= atoi reloop)
-   0x0000139b <+203>:	mov    BYTE PTR [ebp-0x36],0x0         # 0x36 = 0
-   0x0000139f <+207>:	mov    DWORD PTR [ebp-0x14],0x2        # 0x14 = 2 (3 reloop)
-   0x000013a6 <+214>:	mov    DWORD PTR [ebp-0x10],0x1        # 0x10 = 1
+   0x00001397 <+199>:	mov    BYTE PTR [ebp-0x1d],0x64        # 0x1d = buffer = "d"
+   0x0000139b <+203>:	mov    BYTE PTR [ebp-0x36],0x0         # 0x36 = 0 
+   0x0000139f <+207>:	mov    DWORD PTR [ebp-0x14],0x2        # 0x14 = 2 (i counter)
+   0x000013a6 <+214>:	mov    DWORD PTR [ebp-0x10],0x1        # 0x10 = 1 (j counter)
    0x000013ad <+221>:	mov    ebx,DWORD PTR [ebp-0x40]        # ⚪ Loop start
    0x000013b0 <+224>:	lea    ecx,[ebp-0x1d]                  # set ecx = 0x1d = "d"
    0x000013b3 <+227>:	mov    eax,esp                        
    0x000013b5 <+229>:	mov    DWORD PTR [eax],ecx
-   0x000013b7 <+231>:	call   0x10a0 <strlen@plt>             # strlen("d")
+   0x000013b7 <+231>:	call   0x10a0 <strlen@plt>             # strlen(buffer)
    0x000013bc <+236>:	mov    ecx,eax                   
    0x000013be <+238>:	xor    eax,eax
-   0x000013c0 <+240>:	cmp    ecx,0x8                        # Compare strlen("d") avec 8
+   0x000013c0 <+240>:	cmp    ecx,0x8                        # Compare strlen(buffer) avec 8
    0x000013c3 <+243>:	mov    BYTE PTR [ebp-0x41],al
-   0x000013c6 <+246>:	jae    0x13ee <main+286>               # Si above ou equal jump 🟧 IMPOSSIBLE
+   0x000013c6 <+246>:	jae    0x13ee <main+286>               # Si above ou equal jump 🟧 
    0x000013cc <+252>:	mov    ebx,DWORD PTR [ebp-0x40]        
    0x000013cf <+255>:	mov    eax,DWORD PTR [ebp-0x14]        
    0x000013d2 <+258>:	mov    DWORD PTR [ebp-0x48],eax        # 0x48 = eax = 0x14 = 2
@@ -94,28 +94,28 @@
    0x0000142c <+348>:	mov    eax,DWORD PTR [ebp-0x10]           # eax = 0x10 = 1
    0x0000142f <+351>:	mov    BYTE PTR [ebp+eax*1-0x1d],cl       # 0x1d[eax = 1] = cl
    0x00001433 <+355>:	mov    eax,DWORD PTR [ebp-0x14]           # eax = 0x14 = 2
-   0x00001436 <+358>:	add    eax,0x3                            # eax = 3
+   0x00001436 <+358>:	add    eax,0x3                            # i += 3
    0x00001439 <+361>:	mov    DWORD PTR [ebp-0x14],eax           # 0x14 = eax = 3
    0x0000143c <+364>:	mov    eax,DWORD PTR [ebp-0x10]           
-   0x0000143f <+367>:	add    eax,0x1
-   0x00001442 <+370>:	mov    DWORD PTR [ebp-0x10],eax           # 0x10 = 1
+   0x0000143f <+367>:	add    eax,0x1                            # j += 1
+   0x00001442 <+370>:	mov    DWORD PTR [ebp-0x10],eax           
    0x00001445 <+373>:	jmp    0x13ad <main+221>                  # jump (loop) ⚪
-   0x0000144a <+378>:	mov    ebx,DWORD PTR [ebp-0x40]        # 🟪
+   0x0000144a <+378>:	mov    ebx,DWORD PTR [ebp-0x40]           # 🟪
    0x0000144d <+381>:	mov    eax,DWORD PTR [ebp-0x10]
    0x00001450 <+384>:	mov    BYTE PTR [ebp+eax*1-0x1d],0x0
-   0x00001455 <+389>:	lea    ecx,[ebp-0x1d]
-   0x00001458 <+392>:	lea    edx,[ebx-0x42cd]
+   0x00001455 <+389>:	lea    ecx,[ebp-0x1d]                     # Get buffer value
+   0x00001458 <+392>:	lea    edx,[ebx-0x42cd]                   # Get value at ebx-0x42cd = "delabere"
    0x0000145e <+398>:	mov    eax,esp
    0x00001460 <+400>:	mov    DWORD PTR [eax+0x4],edx
    0x00001463 <+403>:	mov    DWORD PTR [eax],ecx
-   0x00001465 <+405>:	call   0x1040 <strcmp@plt>
-   0x0000146a <+410>:	cmp    eax,0x0
-   0x0000146d <+413>:	jne    0x1480 <main+432>
+   0x00001465 <+405>:	call   0x1040 <strcmp@plt>                # Strcmp("delabere", buffer)
+   0x0000146a <+410>:	cmp    eax,0x0                            # Compare result with 0
+   0x0000146d <+413>:	jne    0x1480 <main+432>                  # if nopt equal, jump 🟫
    0x00001473 <+419>:	mov    ebx,DWORD PTR [ebp-0x40]
-   0x00001476 <+422>:	call   0x12a0 <ok>
-   0x0000147b <+427>:	jmp    0x1488 <main+440>
-   0x00001480 <+432>:	mov    ebx,DWORD PTR [ebp-0x40]
-   0x00001483 <+435>:	call   0x1220 <no>
+   0x00001476 <+422>:	call   0x12a0 <ok>                        # ok() ✅
+   0x0000147b <+427>:	jmp    0x1488 <main+440>                  # jump to end
+   0x00001480 <+432>:	mov    ebx,DWORD PTR [ebp-0x40]           # 🟫
+   0x00001483 <+435>:	call   0x1220 <no>                        # no() 🚫
    0x00001488 <+440>:	xor    eax,eax
    0x0000148a <+442>:	add    esp,0x54
    0x0000148d <+445>:	pop    ebx
