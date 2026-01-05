@@ -83,50 +83,50 @@
    0x0000555555555475 <+341>:	call   0x555555555070 <strcmp@plt>       # strcmp("********", &buffer[0])
    0x000055555555547a <+346>:	mov    DWORD PTR [rbp-0x10],eax          # 0x10 = strcmp 
    0x000055555555547d <+349>:	mov    eax,DWORD PTR [rbp-0x10]           
-   0x0000555555555480 <+352>:	mov    DWORD PTR [rbp-0x54],eax          # 0x54 = strcmp
-   0x0000555555555483 <+355>:	sub    eax,0xfffffffe                    # 0xfffffffe = -2 (32-bit value)
+   0x0000555555555480 <+352>:	mov    DWORD PTR [rbp-0x54],eax          # 0x54 = strcmp (new variable *comp)
+   0x0000555555555483 <+355>:	sub    eax,0xfffffffe                    # 0xfffffffe = -2 (32-bit value) comp -= -2
    # sub set ZF if result = 0, SF for sign result, OF sign overflow and CF if unsign overflow
-   0x0000555555555486 <+358>:	je     0x555555555536 <main+534>         # jump if ZF = 1 so if 0x54 = -2 ⏹️
-   0x000055555555548c <+364>:	jmp    0x555555555491 <main+369>
-   0x0000555555555491 <+369>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x0000555555555494 <+372>:	sub    eax,0xffffffff
-   0x0000555555555497 <+375>:	je     0x55555555552c <main+524>
+   0x0000555555555486 <+358>:	je     0x555555555536 <main+534>         # jump if ZF = 1 so if 0x54 = -2 jump fail 🚫
+   0x000055555555548c <+364>:	jmp    0x555555555491 <main+369>         # else 
+   0x0000555555555491 <+369>:	mov    eax,DWORD PTR [rbp-0x54]          
+   0x0000555555555494 <+372>:	sub    eax,0xffffffff                    # result = comp - -1
+   0x0000555555555497 <+375>:	je     0x55555555552c <main+524>         # if result == 0 jump fail 🚫
    0x000055555555549d <+381>:	jmp    0x5555555554a2 <main+386>
    0x00005555555554a2 <+386>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554a5 <+389>:	test   eax,eax
-   0x00005555555554a7 <+391>:	je     0x55555555555e <main+574>         # ✅ Good job function
-   0x00005555555554ad <+397>:	jmp    0x5555555554b2 <main+402>
+   0x00005555555554a5 <+389>:	test   eax,eax                           # result = comp 
+   0x00005555555554a7 <+391>:	je     0x55555555555e <main+574>         # jump if ZF (eax & eax == 0) Good job function ✅ 
+   0x00005555555554ad <+397>:	jmp    0x5555555554b2 <main+402>         # else
    0x00005555555554b2 <+402>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554b5 <+405>:	sub    eax,0x1
-   0x00005555555554b8 <+408>:	je     0x555555555518 <main+504>
-   0x00005555555554be <+414>:	jmp    0x5555555554c3 <main+419>
-   0x00005555555554c3 <+419>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554c6 <+422>:	sub    eax,0x2
-   0x00005555555554c9 <+425>:	je     0x555555555522 <main+514>
-   0x00005555555554cf <+431>:	jmp    0x5555555554d4 <main+436>
+   0x00005555555554b5 <+405>:	sub    eax,0x1                            # result = comp - 1
+   0x00005555555554b8 <+408>:	je     0x555555555518 <main+504>          # jump if resuilt == 0 to fail 🚫
+   0x00005555555554be <+414>:	jmp    0x5555555554c3 <main+419>          # else
+   0x00005555555554c3 <+419>:	mov    eax,DWORD PTR [rbp-0x54]           
+   0x00005555555554c6 <+422>:	sub    eax,0x2                            # result = comp - 2
+   0x00005555555554c9 <+425>:	je     0x555555555522 <main+514>          # if result == 0 jump to fail 🚫
+   0x00005555555554cf <+431>:	jmp    0x5555555554d4 <main+436>          # else
    0x00005555555554d4 <+436>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554d7 <+439>:	sub    eax,0x3
-   0x00005555555554da <+442>:	je     0x555555555540 <main+544>
-   0x00005555555554e0 <+448>:	jmp    0x5555555554e5 <main+453>
+   0x00005555555554d7 <+439>:	sub    eax,0x3                            # result = comp - 3
+   0x00005555555554da <+442>:	je     0x555555555540 <main+544>          # if result == 0 jump to fail 🚫
+   0x00005555555554e0 <+448>:	jmp    0x5555555554e5 <main+453>          # else
    0x00005555555554e5 <+453>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554e8 <+456>:	sub    eax,0x4
-   0x00005555555554eb <+459>:	je     0x55555555554a <main+554>
-   0x00005555555554f1 <+465>:	jmp    0x5555555554f6 <main+470>
+   0x00005555555554e8 <+456>:	sub    eax,0x4                            # result = comp - 4
+   0x00005555555554eb <+459>:	je     0x55555555554a <main+554>          # if result == 0 jump to fail 🚫
+   0x00005555555554f1 <+465>:	jmp    0x5555555554f6 <main+470>          # else
    0x00005555555554f6 <+470>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x00005555555554f9 <+473>:	sub    eax,0x5
-   0x00005555555554fc <+476>:	je     0x555555555554 <main+564>
-   0x0000555555555502 <+482>:	jmp    0x555555555507 <main+487>
+   0x00005555555554f9 <+473>:	sub    eax,0x5                            # result = comp - 5
+   0x00005555555554fc <+476>:	je     0x555555555554 <main+564>          # if result == 0 jump to fail 🚫
+   0x0000555555555502 <+482>:	jmp    0x555555555507 <main+487>          # else
    0x0000555555555507 <+487>:	mov    eax,DWORD PTR [rbp-0x54]
-   0x000055555555550a <+490>:	sub    eax,0x73
-   0x000055555555550d <+493>:	je     0x555555555568 <main+584>
-   0x0000555555555513 <+499>:	jmp    0x555555555572 <main+594>
+   0x000055555555550a <+490>:	sub    eax,0x73                           # result = comp - 73
+   0x000055555555550d <+493>:	je     0x555555555568 <main+584>          # if result == 0 jump to fail 🚫
+   0x0000555555555513 <+499>:	jmp    0x555555555572 <main+594>          # jump to fail 🚫
    0x0000555555555518 <+504>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x000055555555551d <+509>:	jmp    0x555555555577 <main+599>
    0x0000555555555522 <+514>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x0000555555555527 <+519>:	jmp    0x555555555577 <main+599>
    0x000055555555552c <+524>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x0000555555555531 <+529>:	jmp    0x555555555577 <main+599>
-   0x0000555555555536 <+534>:	call   0x5555555552e0 <___syscall_malloc>    # ⏹️ 🚫 Fail function
+   0x0000555555555536 <+534>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x000055555555553b <+539>:	jmp    0x555555555577 <main+599>
    0x0000555555555540 <+544>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x0000555555555545 <+549>:	jmp    0x555555555577 <main+599>
@@ -134,12 +134,12 @@
    0x000055555555554f <+559>:	jmp    0x555555555577 <main+599>
    0x0000555555555554 <+564>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x0000555555555559 <+569>:	jmp    0x555555555577 <main+599>
-   0x000055555555555e <+574>:	call   0x555555555300 <____syscall_malloc>   # ✅ Good job function
+   0x000055555555555e <+574>:	call   0x555555555300 <____syscall_malloc>   # ✅ Good job function (different address)
    0x0000555555555563 <+579>:	jmp    0x555555555577 <main+599>
    0x0000555555555568 <+584>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
    0x000055555555556d <+589>:	jmp    0x555555555577 <main+599>
    0x0000555555555572 <+594>:	call   0x5555555552e0 <___syscall_malloc>    # 🚫 Fail function
-   0x0000555555555577 <+599>:	xor    eax,eax
-   0x0000555555555579 <+601>:	add    rsp,0x60
-   0x000055555555557d <+605>:	pop    rbp
+   0x0000555555555577 <+599>:	xor    eax,eax                               # Set eax to 0
+   0x0000555555555579 <+601>:	add    rsp,0x60   
+   0x000055555555557d <+605>:	pop    rbp                                   # return(0)
    0x000055555555557e <+606>:	ret

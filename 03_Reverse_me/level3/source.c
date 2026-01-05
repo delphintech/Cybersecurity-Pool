@@ -6,15 +6,21 @@
 /*   By: dabouab <dabouab@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:55:40 by dabouab           #+#    #+#             */
-/*   Updated: 2025/12/26 18:25:33 by dabouab          ###   ########.fr       */
+/*   Updated: 2026/01/05 13:10:46 by dabouab          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// The function takes a parameter ????? 
 void	___syscall_malloc(void) {
 	printf("Nope.");
 	exit(1);
+}
+
+void	____syscall_malloc(void) {
+	printf("Good job.");
 }
 
 
@@ -28,15 +34,15 @@ int	main(void) {
 
 	printf("Please enter key: ");
 	if (scanf("%23s", &input[0]) == 1) {
-		if (input[1] == "2") {
-			if (input[0] == "4") {
+		if (input[1] == '2') {
+			if (input[0] == '4') {
 				memset(&buf[0], 0 , 9);
-				buf[0] = "*";
-				buf[9] = 0;
+				buf[0] = '*';
+				buf[8] = 0;
 				i = 2; 
 				j = 1;
 				while (strlen(&buf[0]) < 8) {
-					if (strlen(&input[0] < i))
+					if ((int)strlen(&input[0]) < i)
 						break ;
 					temp[0] = input[i];
 					temp[1] = input[i + 1];
@@ -46,11 +52,29 @@ int	main(void) {
 					j += 1;
 				}
 				comp = strcmp("********", &buf[0]);
-				c
+				if (comp - -2 == 0)
+					___syscall_malloc();
+				else if (comp - -1 == 0)
+					___syscall_malloc();
+				else if (comp == 0)
+					____syscall_malloc(); // ✅
+				else if (comp - 1 == 0)
+					___syscall_malloc();
+				else if (comp - 3 == 0)
+					___syscall_malloc();
+				else if (comp - 4 == 0)
+					___syscall_malloc();
+				else if (comp - 5 == 0)
+					___syscall_malloc();
+				else if (comp - 73 == 0)
+					___syscall_malloc();
+				else
+					___syscall_malloc();
 			} else
 				___syscall_malloc();
 		} else 
 			___syscall_malloc();
 	} else
 		___syscall_malloc();
+	return (0);
 }
