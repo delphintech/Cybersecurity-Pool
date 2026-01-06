@@ -1,3 +1,24 @@
+; ------------- ____syscall_malloc --------------
+
+   0x0000000000001300 <+0>:	push   rbp
+   0x0000000000001301 <+1>:	mov    rbp,rsp
+   0x0000000000001304 <+4>:	lea    rdi,[rip+0xd2e]        # 0x2039
+   0x000000000000130b <+11>:	call   0x1030 <puts@plt>      # print "Good job."
+   0x0000000000001310 <+16>:	pop    rbp
+   0x0000000000001311 <+17>:	ret                           # return
+
+; ------------- ___syscall_malloc --------------
+
+   0x00000000000012e0 <+0>:	push   rbp
+   0x00000000000012e1 <+1>:	mov    rbp,rsp
+   0x00000000000012e4 <+4>:	lea    rdi,[rip+0xd48]        # 0x2033
+   0x00000000000012eb <+11>:	call   0x1030 <puts@plt>      # print "Nope."
+   0x00000000000012f0 <+16>:	mov    edi,0x1
+   0x00000000000012f5 <+21>:	call   0x10b0 <exit@plt>      # return
+
+
+; ------------- main --------------
+
    0x0000555555555320 <+0>:	push   rbp
    0x0000555555555321 <+1>:	mov    rbp,rsp
    0x0000555555555324 <+4>:	sub    rsp,0x60
@@ -143,3 +164,8 @@
    0x0000555555555579 <+601>:	add    rsp,0x60   
    0x000055555555557d <+605>:	pop    rbp                                   # return(0)
    0x000055555555557e <+606>:	ret
+
+
+; # ---------------- PATCH -------------------
+; Change fail function (___syscall_malloc)
+; to "Good job." and exit(0)
