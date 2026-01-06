@@ -163,4 +163,7 @@
 ;  Change all 
 ;     "call 0x1220 <no>"
 ;  by
-;     "call 0x12a0 <ok>"
+;     "Nop 0x1220 <no>"
+;  and last no() call by
+;     "call   0x12a0 <ok>"
+
