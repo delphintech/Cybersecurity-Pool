@@ -41,9 +41,14 @@
    0x00001260 <+160>:	mov    ebx,DWORD PTR [ebp-0x80]		# 🟥
    0x00001263 <+163>:	lea    eax,[ebx-0x1fc9]
    0x00001269 <+169>:	mov    DWORD PTR [esp],eax
-   0x0000126c <+172>:	call   0x1060 <printf@plt>			# print "Nope.\n"
+   0x0000126c <+172>:	call   0x1060 <printf@plt>			# print "Nope.\n" 
    0x00001271 <+177>:	xor    eax,eax						# 🟩
    0x00001273 <+179>:	add    esp,0x84
    0x00001279 <+185>:	pop    ebx
    0x0000127a <+186>:	pop    ebp
    0x0000127b <+187>:	ret  
+
+
+; # ---------------- PATCH -------------------
+; 0x00001244 <+132>:	jne    0x1260 <main+160> 
+; Cancel JUMP to do nothing
