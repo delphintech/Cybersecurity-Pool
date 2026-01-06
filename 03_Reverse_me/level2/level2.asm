@@ -1,3 +1,40 @@
+; ------------- NO --------------
+
+0x00001220 <+0>:	push   ebp
+   0x00001221 <+1>:	mov    ebp,esp
+   0x00001223 <+3>:	push   ebx
+   0x00001224 <+4>:	sub    esp,0x14
+   0x00001227 <+7>:	call   0x122c <no+12>
+   0x0000122c <+12>:	pop    ebx
+   0x0000122d <+13>:	add    ebx,0x5dd4
+   0x00001233 <+19>:	mov    DWORD PTR [ebp-0x8],ebx
+   0x00001236 <+22>:	lea    eax,[ebx-0x4ff8]
+   0x0000123c <+28>:	mov    DWORD PTR [esp],eax
+   0x0000123f <+31>:	call   0x1080 <puts@plt>         # Print "Nope."
+   0x00001244 <+36>:	mov    ebx,DWORD PTR [ebp-0x8]
+   0x00001247 <+39>:	mov    DWORD PTR [esp],0x1       # Set esp = 1
+   0x0000124e <+46>:	call   0x1090 <exit@plt>         # exit(1)
+
+
+; ------------- OK --------------
+
+   0x000012a0 <+0>:	push   ebp
+   0x000012a1 <+1>:	mov    ebp,esp
+   0x000012a3 <+3>:	push   ebx
+   0x000012a4 <+4>:	push   eax
+   0x000012a5 <+5>:	call   0x12aa <ok+10>
+   0x000012aa <+10>:	pop    ebx
+   0x000012ab <+11>:	add    ebx,0x5d56
+   0x000012b1 <+17>:	lea    eax,[ebx-0x42ef]
+   0x000012b7 <+23>:	mov    DWORD PTR [esp],eax
+   0x000012ba <+26>:	call   0x1080 <puts@plt>         # Print "Good job."
+   0x000012bf <+31>:	add    esp,0x4 
+   0x000012c2 <+34>:	pop    ebx
+   0x000012c3 <+35>:	pop    ebp  
+   0x000012c4 <+36>:	ret                              # return
+
+; ------------- MAIN --------------
+
 0x000012d0 <+0>:	push   ebp
    0x000012d1 <+1>:	mov    ebp,esp
    0x000012d3 <+3>:	push   ebx'
