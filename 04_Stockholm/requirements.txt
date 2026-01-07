@@ -1,3 +1,0 @@
-pillow==12.0.0
-plum-py==0.8.7
-termcolor==3.1.0

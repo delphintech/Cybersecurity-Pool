@@ -1,5 +1,5 @@
 # Nom du projet
-NAME = Stockholm
+NAME = stockholm
 
 # Répertoire de l'environnement virtuel
 VENV = venv
