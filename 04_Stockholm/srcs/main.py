@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import utils
-import Stockholm
+from stockholm import Stockholm
 import sys
 
 def main():
@@ -11,8 +10,16 @@ def main():
 	
 	try:
 		stockholm = Stockholm(args)
+		if "h" in stockholm.options:
+			Stockholm.help()
+		elif "v" in stockholm.options:
+			Stockholm.version()
+		elif "r" in stockholm.options:
+			stockholm.reverse()
+		else:
+			stockholm.encrypt()
 	except ValueError as e:
-		print(f"{e}\n\n{utils.USAGE}")
+		print(f"{e}\n\n{Stockholm.usage}")
 		
 	except Exception as e:
 		print(e)
