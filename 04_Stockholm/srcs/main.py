@@ -16,6 +16,8 @@ def main():
 			Stockholm.version()
 		elif "r" in stockholm.options:
 			stockholm.reverse()
+		elif "k" in stockholm.options:
+			stockholm.generate_key()
 		else:
 			stockholm.encrypt()
 	except ValueError as e:
