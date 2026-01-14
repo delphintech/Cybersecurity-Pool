@@ -43,7 +43,7 @@
    0x000055555555537b <+91>:	movsx  ecx,BYTE PTR [rbp-0x40]				# 🟦 ecx = 0x40 = input[0]
    0x000055555555537f <+95>:	mov    eax,0x34                           # eax = 52 = "4"
    0x0000555555555384 <+100>:	cmp    eax,ecx                            # compare 
-   0x0000555555555386 <+102>:	je     0x555555555391 <main+113>          # 🟧 if (input[0] == "4")
+   0x0000555555555386 <+102>:	je     0x555555555391 <main+113>          # if (input[0] == "4") 🟧 
    0x000055555555538c <+108>:	call   0x5555555552e0 <___syscall_malloc> # 🚫 Fail function
    0x0000555555555391 <+113>:	mov    rax,QWORD PTR [rip+0x2c48]        #  🟧 
    0x0000555555555398 <+120>:	mov    rdi,QWORD PTR [rax]

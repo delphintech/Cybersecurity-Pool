@@ -4,9 +4,6 @@ import sys
 
 def main():
 	args = sys.argv[1:]
-	if not args:
-		print(utils.USAGE)
-		sys.exit(1)
 	
 	try:
 		stockholm = Stockholm(args)
@@ -15,9 +12,12 @@ def main():
 		elif "v" in stockholm.options:
 			Stockholm.version()
 		elif "r" in stockholm.options:
-			stockholm.reverse()
+			stockholm.decrypt()
 		elif "k" in stockholm.options:
-			stockholm.generate_key()
+			if stockholm.key:
+				stockholm.decrypt_key()
+			else:
+				Stockholm.generate_key()
 		else:
 			stockholm.encrypt()
 	except ValueError as e:
