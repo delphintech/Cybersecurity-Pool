@@ -1,13 +1,22 @@
-To be able to connect via ssh:
+# INQUISITOR
+Inquisitor performs ARP poisoning in both directions (full duplex) when  active.
 
-in ~/.ssh/config:
+## Create and handle program
 
-	Host *.onion *-tor
-    ProxyCommand ncat --proxy-type socks5 --proxy 127.0.0.1:9052 %h %p
-    CheckHostIP no
-    Compression yes
-    Protocol 2
+`make` Create environment and executable
 
-to test with curl:
+`make clean` stop environment and delete exec
 
- curl --socks5-hostname localhost:9050 http://<onion_name>.onion
+## Program usage
+    ./inquisitor <IP-src> <MAC-src> <IP-target> <MAC-target>
+
+  - `<IP-src>` The IPv4 address of the machine attacking
+  - `<MAC-src>` The MAC address of the machine attacking
+  - `<IP-target>` The IPv4 address of the victim machine
+  - `<MAC-target>` The MAC address of the victim machine
+
+## How to check to program
+
+`openssl rand -hex 32` Generate a random 32 bytes hexadecimal key (1 bytes = 2 characters)
+
+`oathtool –totp $(cat key.txt)` Generate code based on the given key (not encrypted)
