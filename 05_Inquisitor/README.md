@@ -10,8 +10,8 @@ Inquisitor performs ARP poisoning in both directions (full duplex) when  active.
 ## Program usage
     ./inquisitor <IP-src> <MAC-src> <IP-target> <MAC-target>
 
-  - `<IP-src>` The IPv4 address of the machine attacking
-  - `<MAC-src>` The MAC address of the machine attacking
+  - `<IP-src>` The IPv4 address of the machine (or gateaway) we want to replace
+  - `<MAC-src>` The MAC address of the machine (or gateaway) we want to replace
   - `<IP-target>` The IPv4 address of the victim machine
   - `<MAC-target>` The MAC address of the victim machine
 

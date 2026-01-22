@@ -14,12 +14,17 @@ class Inquisitor:
 			self.target_ip = IPAddress(args[2])
 			self.target_mac = EUI(args[3])
 
+			with open("/sys/class/net/eth0/address") as f:
+    			my_mac = f.read().strip()
+			self.my_mac = EUI(my_mac)
+
 			if self.src_ip.version != 4 or self.target_ip.version != 4:
 				raise ValueError("Only Ipv4 is accepted\n")
 		except Exception as e:
 			print(str(e) + "\n" + self.usage)
 		
 	def __str__(self):
-		return(f"Inquisitor:\n"
-			f"  - Attacker: {str(self.src_ip)}  | {str(self.src_mac)}\n"
+		return (f"Inquisitor:\n"
+			f"  - Attacker:   {str(self.my_mac)}\n"
+			f"  - Source: {str(self.src_ip)}  | {str(self.src_mac)}\n"
 			f"  - Victim:   {str(self.target_ip)}  | {str(self.target_mac)}\n")

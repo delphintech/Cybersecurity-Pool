@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys
 from inquisitor import Inquisitor
-import utils
 
 def main():
 	args = sys.argv[1:]
@@ -12,9 +11,10 @@ def main():
 	try:
 		inquisitor = Inquisitor(args)
 		print(inquisitor)
-	except ValueError as e:
-		print(f"{e}\n\n{Inquisitor.usage}")
-		
+		# libpcap (capture) →  sniff ARP packets
+		# raw socket (send) → craft + inject Ethernet/ARP frames
+		# timer loop → keep poisoning alive
+		# Handle Ctrl + C signal to restore the correct tables
 	except Exception as e:
 		print(e)
 

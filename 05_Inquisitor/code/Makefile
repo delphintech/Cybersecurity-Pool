@@ -47,7 +47,7 @@ activate: $(VENV)
 
 # 1️⃣ Créer et activer l'environnement virtuel
 $(VENV):
-	@printf "🛠️  Activation de l'environnement virtuel ... \n"
+	@printf "🛠️ Creating virtual environment ... \n"
 	@test -d $(VENV) || python3 -m venv $(VENV)
 	@$(PIP) install --upgrade pip
 
@@ -58,7 +58,7 @@ install: $(VENV)
 
 # Supprime les fichiers temporaires et l'environnement virtuel
 clean: 
-	@printf "🧹 Cleaning ..."
+	@printf "🧹 Cleaning ...\n"
 	@rm -rf $(VENV) $(NAME)
 	@find . -type d -name "__pycache__" -exec rm -rf {} +
 
