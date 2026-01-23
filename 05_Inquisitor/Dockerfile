@@ -1,15 +1,13 @@
 FROM	debian:bullseye
 
 RUN		apt-get update -y && apt-get upgrade -y && apt-get install -y \
-	sudo \
 	python3 \
+	python3-dev \
 	python3-pip \
 	python3-venv \
 	make \ 
-	libpcap-dev \
-	python3-dev
+	libpcap-dev
 
-COPY	./code /code
 WORKDIR	/code
 
-CMD /bin/bash -c "make && tail -f /dev/null"
+CMD ["/bin/bash", "-c", "make && tail -f /dev/null"]

@@ -12,13 +12,14 @@ def main():
 
     try:
         inquisitor = Inquisitor(args)
-        inquisitor.ip_route()
+        inquisitor.connect()
+        print ('[x] Ongoing ARP poisoning ... Ctrl+C to stop\n\n')
 
         while True:
             inquisitor.poison()
             inquisitor.intercept()
 
-            time.spleep(1)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         print("[!] Program interrupted !\n Restoring the network, please wait...")

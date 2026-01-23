@@ -7,7 +7,7 @@ build:
 	@docker build -t $(NAME) .
 
 run: build
-	@docker run --name $(NAME) -d -v "$(PWD)/code":/code $(NAME)
+	@docker run --cap-add=NET_RAW --network=host -it --name $(NAME) -d -v "$(PWD)/code":/code $(NAME)
 
 start:
 	@docker start $(NAME)

