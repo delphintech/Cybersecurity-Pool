@@ -13,7 +13,7 @@ def main():
     try:
         inquisitor = Inquisitor(args)
         inquisitor.connect()
-        print ('[x] Ongoing ARP poisoning ... Ctrl+C to stop\n\n')
+        print('[x] Ongoing ARP poisoning ... Ctrl+C to stop\n\n')
 
         while True:
             inquisitor.poison()
@@ -22,7 +22,8 @@ def main():
             time.sleep(1)
 
     except KeyboardInterrupt:
-        print("[!] Program interrupted !\n Restoring the network, please wait...")
+        print("[!] Program interrupted !\n\
+        Restoring the network, please wait...")
         inquisitor.restore()
 
     except Exception as e:

