@@ -70,6 +70,10 @@ clean:
 	@rm -rf $(VENV) $(NAME)
 	@find . -type d -name "__pycache__" -exec rm -rf {} +
 
+# Lance la norme
+norm: $(VENV)
+	@$(VENV)/bin/flake8 $(SRC_DIR) --exclude=$(VENV),__pycache__
+
 # Relance tout depuis zéro
 re: clean all
 
