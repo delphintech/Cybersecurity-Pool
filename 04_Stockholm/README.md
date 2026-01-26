@@ -1,13 +1,13 @@
 # STOCKHOLM
 Stockholm is a ransomware that only affects files whose extensions have been affected by **Wannacry**, inside a folder named **infection** inside **HOME** directory.
 
-## Create the key encryption
+## Setup
 
 `make` Create environment and executable
 
 `make clean` Stop environment and delete exec
 
-## Program usage
+## Usage
 
     ./stockholm [options] KEY
 				[-h|-help]

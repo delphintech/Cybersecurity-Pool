@@ -23,7 +23,7 @@ def main():
 
     except KeyboardInterrupt:
         print("[!] Program interrupted !\n\
-        Restoring the network, please wait...")
+Restoring the network, please wait...")
         inquisitor.restore()
 
     except Exception as e:
