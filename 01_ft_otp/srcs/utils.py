@@ -1,23 +1,29 @@
 from cryptography.fernet import Fernet
 import time
 import hmac
+import os
 
 USAGE = "usage: ./ft_opt [options]\n \
 	options:\n\
-		-g [64_HEXA_KEY], store the key inciprted in ft_otp.key\n\
+		-g [64_HEXA_KEY], store the encrypted key in ft_otp.key\n\
 		-k [FILE / KEY], generates a new temporary password based on the key given"
 
 KEY=b"IgkaT-cTRq5rV386nDbf_hXkz7WSCvWb6nc19Tt7_2A="
 
-def is_valid_hexa_key(arg):
+def valid_hexa_key(arg):
 	dic = "0123456789abcdefABCDEF"
+	key = arg
 
-	if len(arg) < 64 or len(arg) > 72:
-		return False
-	for c in arg:
+	if os.access(arg, os.R_OK):
+		with open(arg, "r") as file:
+			key = file.read()
+	key = key.rstrip(" \n")
+	if len(key) < 64 or len(key) > 72:
+		return ""
+	for c in key:
 		if c not in dic:
-			return False
-	return True
+			return ""
+	return key
 
 def	store_key(key):
 	fernet = Fernet(KEY)
@@ -33,7 +39,7 @@ def	decrypt_key(file):
 		encrypt = file.read()
 	decrypt = fernet.decrypt(encrypt)
 	key = decrypt.decode()
-	if not is_valid_hexa_key(key):
+	if not valid_hexa_key(key):
 		print("The given key is invalid\n")
 		return
 	return key

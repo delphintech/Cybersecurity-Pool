@@ -10,10 +10,11 @@ def main():
 		sys.exit(1)
 	
 	if args[0] == "-g":
-		if not utils.is_valid_hexa_key(args[1]):
+		key = utils.valid_hexa_key(args[1])
+		if not key:
 			print("The given key must be heaxdecimal and be between 64 and 72 characters.\n\n" + utils.USAGE)
 			sys.exit(1)
-		utils.store_key(args[1])
+		utils.store_key(key)
 	elif args[0] == "-k":
 		if not os.access(args[1], os.R_OK):
 			print("Please enter a valid file\n\n" + utils.USAGE)
@@ -23,7 +24,6 @@ def main():
 		print(otp)
 	else:
 		print("Invalid arguments\n\n" + utils.USAGE)
-
 
 
 # Laumch main only if called directly

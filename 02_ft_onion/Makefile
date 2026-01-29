@@ -1,31 +1,39 @@
 NAME=ft_onion
+TEST=test
 
-all: build run
+COLOR = \e[1;34m
+RESET = \e[0m
+
+all: build run info
 
 build:
 	@printf "🔨 Building image %s...\n" $(NAME)
-	docker build -t $(NAME) .
+	@docker build -t $(NAME) .
 
 run: build
-	docker run --add-host host.docker.internal:host-gateway --name $(NAME) $(NAME)
+	@docker run --name $(NAME) $(NAME)
 
 start:
-	docker start $(NAME)
+	@docker start $(NAME)
 
 stop:    
 	@docker stop $(NAME) || true
 
-link:
-	@docker exec ft_onion cat /var/lib/tor/hidden_service/hostname
+info:
+	@ONION=$$(docker exec ft_onion cat /var/lib/tor/hidden_service/hostname); \
+	printf "\n$(COLOR)Tor hidden service address:\n  $(RESET)$$ONION\n"; \
+	printf "$(COLOR)Test standard localhost (inside container):\n  $(RESET)curl localhost:80\n"; \
+	printf "$(COLOR)Test tor (inside container):\n  $(RESET)curl --socks5-hostname localhost:9052 http://$$ONION\n"; \
+	printf "$(COLOR)SSH access (inside container):\n  $(RESET)ssh -p 4242 dab@localhost\n"
 
 term:    
-	docker exec -it $(NAME) bash
+	@docker exec -it $(NAME) bash
 	
-clean:    
-	docker rm $(NAME) || true
+clean:  
+	@docker rm $(NAME) || true
 
 prune:    
-	docker system prune -a
+	@docker system prune -a
 
 re: clean build run
 	
@@ -33,5 +41,5 @@ re: clean build run
 
 tor:
 	@docker exec ft_onion service tor restart
-	Echo "TOR restarted ..."
+	@echo "TOR restarted ..."
 	@MAKE link

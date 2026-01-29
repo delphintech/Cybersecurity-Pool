@@ -1,8 +1,14 @@
+import utils
+
 import os
 import requests
-from bs4 import BeautifulSoup
-import utils
-import urllib.parse
+import shutil
+import urllib
+from urllib.parse import urlparse
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 
 class Spider:
 	imgs = 0
@@ -17,7 +23,7 @@ class Spider:
 		i = 0
 		while i < len(args):
 			if (args[i][0] == '-'):
-				if len(args[i]) < 2:
+				if len(args[i]) != 2:
 					raise ValueError("Bad option call")
 				
 				match args[i][1]:
@@ -43,59 +49,62 @@ class Spider:
 						raise ValueError("Wrong option")
 			else:
 				if i < len(args) - 1:
-					raise ValueError("URL should be last")
+					raise ValueError("Bad usage")
 				self.url = args[i]
 			i += 1
+
 		self.check(opt)
+		''' create session '''
+		options = Options()
+		options.add_argument("--headless")
+		self.driver = webdriver.Chrome(options=options)
+
 
 	def check(self, opt):
 		''' Check for option validity '''
 		if 'l' in opt and 'r' not in opt:
 			raise ValueError("Depth option without recursive")
-		if 'l' in opt and (self.depth < 0 or self.depth > 1000):
-			raise ValueError("Invalid depth (must be between 0 and 1000)")
+		if 'l' in opt and (self.depth < 0 or self.depth > 10):
+			raise ValueError("Invalid depth (must be between 0 and 10)")
 		
 		''' Check for folder path '''
-		os.makedirs(self.path, exist_ok=True)
+		if os.path.isdir(self.path):
+			shutil.rmtree(self.path)
+		os.makedirs(self.path)
 		if self.path[-1] != '/':
 			self.path += "/"
 
-		''' Check for url accessibility '''
-		headers = {
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-						"AppleWebKit/537.36 (KHTML, like Gecko) "
-						"Chrome/115.0.0.0 Safari/537.36"
-		}
-		res = requests.head(self.url, headers=headers)
-		if not res.ok:
-			raise ValueError(f"🚨 URL Error {res.status_code}")
+		''' Check for valid url '''
+		parsed = urlparse(self.url)
+		if not parsed.scheme or not parsed.netloc:
+			raise ValueError("Invalid url")
 
-
-
-	def scrap(self, url, depth=None):
+	def scrap(self, url, depth=0):
 		elements = []
 		links = []
-		headers = {
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-						"AppleWebKit/537.36 (KHTML, like Gecko) "
-						"Chrome/115.0.0.0 Safari/537.36"
-		}
 
 		if url in self.done:
 			return
-		
+
+		print(f"Downloading images from: {url} (depth: {self.depth - depth}) ...\n")
+
 		''' Get the page content '''
-		res = requests.get(url, headers=headers)
-		if not res.ok:
+		self.driver.get(url)
+		WebDriverWait(self.driver, 5).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+		if not self.driver.current_url:
 			return
-		
-		soup = BeautifulSoup(res.text, 'html.parser')
 
 		''' Parse and store each image url '''
-		elements = soup.find_all("img")
-		links = [img.get("src") for img in elements]
+		elements = self.driver.find_elements(By.TAG_NAME, "img")
+		links = [e.get_attribute("src") for e in elements]
 
 		''' Download each images '''
+		headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36",
+            "Referer": url,
+        }
 		for x in links:
 			filename = utils.get_img_name(x)
 			if not filename or x == None:
@@ -109,12 +118,27 @@ class Spider:
 		self.done.append(url)
 		elements.clear()
 		links.clear()
-		''' Scrap all the links in the page'''
+
+		''' Scrap all the links in the page '''
 		if depth > 0:
-			elements = soup.find_all("a")
-			links = [img.get("href") for img in elements]
+			elements = self.driver.find_elements(By.TAG_NAME, "a")
+			links = [e.get_attribute("href") for e in elements]
 			for x in links:
 				if x != None and not x.startswith("#") and not x.startswith("mailto:") \
 					and not x.startswith("javascript"):
 					link_url = urllib.parse.urljoin(self.url, x)
 					self.scrap(link_url, depth - 1)
+
+	def __del__(self):
+		driver = getattr(self, "driver", None)
+		if driver:
+			driver.quit()
+
+	def	print(self):
+		print("--- SPIDER ---\n\n")
+		print(f"* url: {self.url}\n\n")
+		print(f"* path: {self.path}\n\n")
+		print(f"* depth: {self.depth}\n\n")
+		print("* done:\n")
+		for x in self.done:
+			print(f"    - {x}\n")

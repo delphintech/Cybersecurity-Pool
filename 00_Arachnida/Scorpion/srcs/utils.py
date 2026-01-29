@@ -2,6 +2,7 @@ import os
 from termcolor import cprint
 from PIL import Image
 from PIL.ExifTags import TAGS
+from datetime import datetime
 
 USAGE = "usage: ./scorpion FILE1 [FILE2 ...]\n"
 
@@ -16,9 +17,12 @@ def check_img(file: str) -> bool:
 
 def	meta(file: str):
 	meta = {}
+	stat = os.stat(file)
 	image = Image.open(file)
 	cprint(f"---------- {image.filename} ----------", "blue", "on_white")
-	print(f"Size: {image.size}")
+	print(f"Creation time: {datetime.fromtimestamp(stat.st_ctime).strftime('%d-%m-%Y %H:%M:%S')}")
+	print(f"Last modified: {datetime.fromtimestamp(stat.st_mtime).strftime('%d-%m-%Y %H:%M:%S')}")
+	print(f"Size {stat.st_size / (1000 * 1000):.2f} MB")
 	print(f"Dimension: {image.height} x {image.width}")
 	print(f"Format: {image.format}\n")
 	exifdata = image.getexif()

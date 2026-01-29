@@ -1,13 +1,16 @@
-To be able to connect via ssh:
+# FT_ONION
+Web server configuration to show a webpage on the Tor network.
 
-in ~/.ssh/config:
+## Setup
 
-	Host *.onion *-tor
-    ProxyCommand ncat --proxy-type socks5 --proxy 127.0.0.1:9052 %h %p
-    CheckHostIP no
-    Compression yes
-    Protocol 2
+`make` Create docker and start the nginx and tor service
 
-to test with curl:
+`make stop` stop the docker
 
- curl --socks5-hostname localhost:9050 http://<onion_name>.onion
+`make clean` Stop docker, clean environment delete exec and docker image
+
+## Test
+
+**Show test commands**\
+`make info` 
+

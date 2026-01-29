@@ -1,13 +1,13 @@
 # SPIDER
 The spider program allow you to extract all the images from a website, recursively, by providing an URL as a parameter.
 
-## Create and handle program
+## Setup
 
 `make` Create environment and executable
 
 `make clean` stop environment and delete exec
 
-## Program usage
+## Usage
     ./spider [-rlp] URL
 
  - Option -r : recursively downloads the images in a URL received as a  parameter. 

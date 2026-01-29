@@ -12,7 +12,7 @@ def main():
 	i = 0
 	while i < len(args):
 		if utils.check_img(args[i]):
-			meta = utils.meta(args[i])
+			utils.meta(args[i])
 		else:
 			cprint(f"'{args[i]}' is not an image or is not readable", "red")
 		if (i < len(args) - 1):

@@ -1,3 +1,6 @@
+from urllib.parse import urlparse
+import os
+
 USAGE = "usage: ./spider [options] URL\n \
 	options:\n\
 		-r, recursively downloads the images in the URL\n\
@@ -10,11 +13,15 @@ def get_img_name(url):
 
 	if not url:
 		return ""
+
+	parsed = urlparse(url)
+	name = os.path.basename(parsed.path)
 	for x in exts:
-		if url.endswith(x):
+		if name.endswith(x):
 			is_img = True
 	if not is_img:
 		return ""
 	
-	pos = url.rfind("/")
-	return url[pos:]
+	if len(name) > 50:
+		name = name[-50:]
+	return name
