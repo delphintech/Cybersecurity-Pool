@@ -71,5 +71,9 @@ re: clean all
 norm: $(VENV)
 	@$(VENV)/bin/flake8 $(SRC_DIR) --exclude=$(VENV),__pycache__
 
+test: $(NAME)
+	./$(NAME) 
+	
+
 .PHONY: activate install run clean re
 

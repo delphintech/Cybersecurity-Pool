@@ -18,22 +18,24 @@ To provide, if possible, the following informations:
 `make clean` Stop environment and delete exec
 
 ## Usage
-  ./vaccine [-oX] URL
+  ./vaccine [-oXd] URL
 
   - `-o <file_name>` Archive file, if not specified it will be stored in a default one
   - `-X <GET|POST>` Type of request, if not specified GET will be used.
+  - `-d <max_depth>` Maximun crawl depth. 3 by default, 10 as a maximum
 
 ## Test
 
-<!-- **Check the ARP tables**\
-`arp -n` 
+**Check the norm**\
+`make norm` 
 
-**Create a FTP server**\
-`sudo apt install vsftpd`\
-`sudo service vsftpd start`
+**Websites to test the program**
+`https://www.hackthissite.org/` What is tested\
 
-**FTP Exchange**\
-`ftp <ftp_server_ip>` Connect\
-`put <file_name>` Upload\
-`get <file_name>` Download -->
+`http://www.itsecgames.com`
 
+`http://testphp.vulnweb.com/`
+
+`https://demo.owasp-juice.shop/#/`
+
+`https://google-gruyere.appspot.com/part1`
