@@ -22,7 +22,7 @@ To provide, if possible, the following informations:
 
   - `-o <file_name>` Archive file, if not specified it will be stored in a default one
   - `-X <GET|POST>` Type of request, if not specified GET will be used.
-  - `-d <max_depth>` Maximun crawl depth. 3 by default, 10 as a maximum
+  - `-d <max_depth>` Maximun crawl depth. 1 by default, 5 as a maximum
 
 ## Test
 

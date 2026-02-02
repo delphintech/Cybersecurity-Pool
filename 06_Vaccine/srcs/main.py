@@ -10,15 +10,18 @@ def main():
 
     try:
         vaccine = Vaccine(args)
-        # TODO: Get all website froms corresponding of the chosen method
+        print(vaccine.request)
+        vaccine.get_forms(vaccine.url, vaccine.max_depth)
+        for f in vaccine.forms:  # DEV
+            print(str(f))
         # TODO: Check for sql error message in the response
         # TODO: Test different SQL injection with special characters 
         #       to see if response contains SQl error indicating vulnerability
     except ValueError as e:
-        print(e + "\n\n" + Vaccine.usage)
+        print(str(e) + "\n\n" + Vaccine.usage)
 
     except Exception as e:
-        print(e)
+        print(str(e))
 
 
 # Laumch main only if called directly

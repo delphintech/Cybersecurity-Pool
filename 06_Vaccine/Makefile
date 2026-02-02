@@ -40,7 +40,7 @@ $(NAME): $(VENV) install $(MAIN)
 	@printf "▐▌  ▐▌▐▌ ▐▌▐▌   ▐▌     █  ▐▛▚▖▐▌▐▌   \n"
 	@printf "▐▌  ▐▌▐▛▀▜▌▐▌   ▐▌     █  ▐▌ ▝▜▌▐▛▀▀▘\n"
 	@printf " ▝▚▞▘ ▐▌ ▐▌▝▚▄▄▖▝▚▄▄▖▗▄█▄▖▐▌  ▐▌▐▙▄▄▖"
-	@printf "$(RESET)"
+	@printf "$(RESET)\n"
 
 # pour lancer le shell de l'environnement
 activate: $(VENV)
@@ -72,7 +72,7 @@ norm: $(VENV)
 	@$(VENV)/bin/flake8 $(SRC_DIR) --exclude=$(VENV),__pycache__
 
 test: $(NAME)
-	./$(NAME) 
+	./$(NAME) -X POST 'http://testphp.vulnweb.com/login.php'
 	
 
 .PHONY: activate install run clean re
