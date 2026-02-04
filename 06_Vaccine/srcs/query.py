@@ -1,15 +1,4 @@
 class Query:
-	tests = [
-        "'",   
-        "' --'",
-        "' AND '1'='2",  # Always false fdor boolean 
-        "1' OR '1'='1",  # Always true for authentification
-        "' OR '1'='1",   # Always true for authentification
-        "' OR 1=1--",    # Always true for authentification
-        "' UNION SELECT NULL--",  # Check for column
-        "' UNION SELECT username,password FROM users--  " # direct extraction
-    ]
-
 	versions = {
         'MySQL': "' UNION SELECT @@version--",
         'Microsoft': "' UNION SELECT @@version--",

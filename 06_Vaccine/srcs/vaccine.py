@@ -1,4 +1,5 @@
 import os
+import sys
 import urllib
 from form import Form
 from urllib.parse import urlparse
@@ -13,7 +14,8 @@ class Vaccine:
         * -d <max_depth>` Maximun crawl depth. 1 by default, maximum 5\n"
 
     def __init__(self, args):
-        self.archive = ""
+        self.report = ""
+        self.archive = "Report.txt"
         self.request = "GET"
         self.max_depth = 1
         self.url_done = []
@@ -67,11 +69,22 @@ class Vaccine:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
         })
+        self.report('-' * 20 + " VULNERABILITY REPORT " + '-' * 20 + "\n\n")
+        self.report("="*70 + "\n")
+        self.report(f"Target URL: {self.url}\n")
+        self.report(f"Request Method: {self.request}\n")
+        self.report(f"Crawl Depth: {self.max_depth}\n")
+        self.report("="*70 + "\n\n")
     
-    # def send(self, url, data):
-    #     if self.request == 'GET':
-    #         return self.driver.
+    def report(self, text):
+        report += text + "\n"
     
+    def send(self, url, data):
+        if self.request == 'GET':
+            return self.session.get(url, params=data)
+        elif self.request == 'POST':
+            return self.session.post(url, data=data)
+
     def get_forms(self, url, depth):
         ''' Get all the forms from the url and crawl to set depth '''
 
@@ -99,12 +112,51 @@ class Vaccine:
             if not href.startswith(("#", "mailto:", "javascript")):
                 link_url = urllib.parse.urljoin(url, href)
                 self.get_forms(link_url, depth - 1)
+
+    def check_all_inputs(self, form, query):
+        ''' Check the query with all inputs of the form'''
+        responses = []
+        data = {}
+
+        i = 0
+        while i < len(form):
+            for idx, input in self.inputs:
+                if idx == i:
+                    target = input['name']
+                    data[input['name']] = query
+                else:
+                    data[input['name']] = input['value'] or 'test'
+            res = self.send(form.action, data)
+            responses.append({
+                'input': target,
+                'response': res
+            })
+            i += 1
     
+    def check_vulnerability(self):
+        if not self.forms:
+            print(f"No forms found with {self.request}")
+            return
+
+        # Check for Error-based
+        
+
+
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\
   * Request:  {self.request}\n * Archive:  {self.archive}")
+    
+    def clean(self):
+        ''' Write report in file and close the session'''
+        self.report('-' * 28 + " END " + '-' * 28 + "\n\n")
+        with open(self.archive, 'w') as file:
+            file.write(self.report)
+        session = getattr(self, "session", None)
+        if session:
+            session.close()
+
+    def __exit__(self):
+        self.clean()
 
     def __del__(self):
-        driver = getattr(self, "driver", None)
-        if driver:
-            driver.quit()
+        self.clean()

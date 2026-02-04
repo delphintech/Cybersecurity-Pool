@@ -14,12 +14,12 @@ class Form:
                 input_name = input_elem.get('name', '')
                 input_value = input_elem.get('value', '')
 
-            if input_name:
-                self.inputs.append({
-                    'name': input_name, 
-                    'value': input_value,
-                    'type': input_type
-                })
+                if input_name:
+                    self.inputs.append({
+                        'name': input_name, 
+                        'value': input_value,
+                        'type': input_type
+                    })
         
         for textarea in element.find_all('textarea'):
             textarea_name = textarea.get('name', '')
@@ -42,6 +42,6 @@ class Form:
     def __str__(self):
         inputs = ""
         for input in self.inputs:
-            inputs = inputs + f"  Name: {input['name']} | value: {input['value']}\n"
+            inputs = inputs + f" Name: {input['name']} | value: {input['value']}\n"
         return (f"Action:  {self.action}\nMethod:  {self.method}\n\
 Inputs:\n {inputs}")
