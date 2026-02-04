@@ -1,17 +1,36 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+import requests
+from bs4 import BeautifulSoup
 
 class Form:
-    def __init__(self, elements):
-        self.action = elements.get_attribute('action')
-        self.method = elements.get_attribute('method').upper()
+    def __init__(self, element):
+        self.action = element.get('action', '')
+        self.method = (element.get('method') or 'GET').upper()
         self.inputs = []
 
-        for input in elements.find_elements(By.TAG_NAME, 'input'):
-            if input.get_attribute('type') == "text":
-                input_name = input.get_attribute('name') 
-                input_value = input.get_attribute('value') 
-                self.inputs.append({'name': input_name, 'value': input_value})
+        for input_elem in element.find_all('input'):
+            input_type = input_elem.get('type', 'text')
+
+            if input_type not in ['submit', 'button', 'reset', 'image']:
+                input_name = input_elem.get('name', '')
+                input_value = input_elem.get('value', '')
+
+            if input_name:
+                self.inputs.append({
+                    'name': input_name, 
+                    'value': input_value,
+                    'type': input_type
+                })
+        
+        for textarea in element.find_all('textarea'):
+            textarea_name = textarea.get('name', '')
+            textarea_value = textarea.get_text(strip=True)
+            
+            if textarea_name:
+                self.inputs.append({
+                    'name': textarea_name,
+                    'value': textarea_value,
+                    'type': 'textarea'
+                })
 
     def __eq__(self, other):
         if not isinstance(other, Form):

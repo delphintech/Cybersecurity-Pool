@@ -2,10 +2,8 @@ import os
 import urllib
 from form import Form
 from urllib.parse import urlparse
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
+import requests
+from bs4 import BeautifulSoup
 
 class Vaccine:
     usage = "Usage: ./vaccine [-oX] URL\n \
@@ -65,15 +63,17 @@ class Vaccine:
             raise ValueError("File already exists and lack permission's access")
     
     def init_session(self):
-        ''' create session '''
-        options = Options()
-        options.add_argument("--headless")
-        self.driver = webdriver.Chrome(options=options)
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+        })
+    
+    # def send(self, url, data):
+    #     if self.request == 'GET':
+    #         return self.driver.
     
     def get_forms(self, url, depth):
         ''' Get all the forms from the url and crawl to set depth '''
-        elements = []
-        links = []
 
         if url in self.url_done:
             return
@@ -81,32 +81,24 @@ class Vaccine:
         print(f"********** {url} | {depth} **********") # DEV
 
         # Get the page content
-        self.driver.get(url)
-        WebDriverWait(self.driver, 5).until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
-        if not self.driver.current_url:
-            return
+        response = self.session.get(url, timeout=5)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
         # Parse and store each form
-        elements = self.driver.find_elements(By.TAG_NAME, "form")
-        for e in elements:
-            form = Form(e)
+        for f in soup.find_all('form'):
+            form = Form(f)
             if form.method == self.request and form not in self.forms:
               self.forms.append(form)
 
         self.url_done.append(url)
-        elements.clear()
 
         # Scrap all the links in the page
         if depth > 0:
-          elements = self.driver.find_elements(By.TAG_NAME, "a")
-          links = [e.get_attribute("href") for e in elements]
-          for x in links:
-              if x != None and not x.startswith("#") and not x.startswith("mailto:") \
-                  and not x.startswith("javascript"):
-                  link_url = urllib.parse.urljoin(self.url, x)
-                  self.get_forms(link_url, depth - 1)
+          for link in soup.find_all('a', href=True):
+            href = link['href']
+            if not href.startswith(("#", "mailto:", "javascript")):
+                link_url = urllib.parse.urljoin(url, href)
+                self.get_forms(link_url, depth - 1)
     
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\
