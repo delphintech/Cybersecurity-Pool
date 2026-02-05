@@ -6,6 +6,7 @@ class Form:
         self.action = element.get('action', '')
         self.method = (element.get('method') or 'GET').upper()
         self.inputs = []
+        self.vul = False
 
         for input_elem in element.find_all('input'):
             input_type = input_elem.get('type', 'text')
@@ -18,7 +19,8 @@ class Form:
                     self.inputs.append({
                         'name': input_name, 
                         'value': input_value,
-                        'type': input_type
+                        'type': input_type,
+                        'vul': []
                     })
         
         for textarea in element.find_all('textarea'):
