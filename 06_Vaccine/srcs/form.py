@@ -1,12 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+import urllib.parse
+
 
 class Form:
-    def __init__(self, element):
+    def __init__(self, url, element):
         self.action = element.get('action', '')
         self.method = (element.get('method') or 'GET').upper()
         self.inputs = []
         self.vul = False
+        self.url = urllib.parse.urljoin(url, self.action)
 
         for input_elem in element.find_all('input'):
             input_type = input_elem.get('type', 'text')

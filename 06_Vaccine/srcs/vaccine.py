@@ -1,7 +1,7 @@
+from query import Query
 import os
-import urllib
+import urllib.parse
 from form import Form
-from urllib.parse import urlparse
 import requests
 from prettytable import PrettyTable
 from bs4 import BeautifulSoup
@@ -12,13 +12,6 @@ class Vaccine:
         * -o <file_name>: Archive file, if not specified it will be stored in a default one\n \
         * -X <GET|POST>: Type of request, if not specified GET will be used.\n\
         * -d <max_depth>` Maximun crawl depth. 1 by default, maximum 5\n"
-
-    queries_check = {
-        'error': ["'"],
-        'boolean': ["' AND 1=1 --", "' AND 1=2 --"],
-        'union': ["' UNION SELECT NULL--", "' UNION SELECT NULL, NULL--", "' UNION SELECT NULL, NULL, NULL--"],
-        'sleep': ["1' AND SLEEP(5)--"]
-    }
 
     def __init__(self, args):
         self.report = ""
@@ -43,7 +36,7 @@ class Vaccine:
                         self.request = args[i].upper()
                     case 'd':
                         i += 1
-                        self.request = args[i]
+                        self.max_depth = int(args[i])
                     case _:
                         raise ValueError("Wrong option")
             else:
@@ -62,7 +55,7 @@ class Vaccine:
         if self.max_depth < 0 or self.max_depth > 5:
             raise ValueError("Crawling depth must be between 0 and 5")
         # Check for valid url
-        parsed = urlparse(self.url)
+        parsed = urllib.parse.urlparse(self.url)
         if not parsed.scheme or not parsed.netloc:
             raise ValueError("Invalid url")
         # check archive file is valid
@@ -105,12 +98,15 @@ class Vaccine:
         print(f"********** {url} | {depth} **********") # DEV
 
         # Get the page content
-        response = self.session.get(url, timeout=5)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        try:
+            response = self.session.get(url, timeout=5)
+            soup = BeautifulSoup(response.text, 'html.parser')
+        except:
+            return
 
         # Parse and store each form
         for f in soup.find_all('form'):
-            form = Form(f)
+            form = Form(self.url, f)
             if form.method == self.request and form not in self.forms:
               self.forms.append(form)
 
@@ -130,27 +126,24 @@ class Vaccine:
         data = {}
 
         i = 0
-        while i < len(form):
-            for idx, input in self.inputs:
+        while i < len(form.inputs):
+            for idx, input in enumerate(self.forms[i].inputs):
                 if idx == i:
                     target = input['name']
                     data[input['name']] = query
                 else:
                     data[input['name']] = input['value'] or 'test'
-            res = self.send(form.action, data)
-            responses.append({
-                'input': target,
-                'response': res
-            })
+            try:
+                res = self.send(form.url, data)
+                responses.append({
+                    'input': target,
+                    'response': res
+                })
+            except Exception as e:
+                self.add_report(f"Form submission failed for {form.url}: {e}")
+                return responses
             i += 1
-
-    # def check_form(self, form, query):
-    #     ''' Check the form with the given query '''
-    #     data = {}
-
-    #     for input in self.inputs:
-    #         data[input['name']] = query
-    #     return self.send(form.action, data)
+            return responses
     
     def check_vulnerability(self):
         ''' Check different vulnerabilities '''
@@ -160,38 +153,42 @@ class Vaccine:
 
         # Error-based
 
-        query = self.queries_check['error'][0]
+        query = Query.checks['error'][0]
         for form in self.forms:
             responses = self.check_all_inputs(form, query)
             for res in responses:
-                if res.status_code == 500:
+                if res['response'].status_code == 500:
                     form.vul = True
                     list(filter({form.inputs['name'] == res['input']}, form.inputs))[0]['vul'].append("error")
         
         # Boolean
-        true_query = self.queries_check['boolean'][0]
-        false_query = self.queries_check['boolean'][1]
+        true_query = Query.checks['boolean'][0]
+        false_query = Query.checks['boolean'][1]
         for form in self.forms:
             true_responses = self.check_all_inputs(form, true_query)
             false_responses = self.check_all_inputs(form, false_query)
             for true_res, false_res in zip(true_responses, false_responses):
-                if len(true_res.text) != len(false_res.text):
+                if len(true_res['response'].text) != len(false_res['response'].text):
                     form.vul = True
                     list(filter({form.inputs['name'] == res['input']}, form.inputs))[0]['vul'].append("boolean")
 
 
         # Union
-        one_query = self.queries_check['error'][0]
-        two_query = self.queries_check['union'][1]
-        three_query = self.queries_check['union'][3]
+        one_query = Query.checks['error'][0]
+        two_query = Query.checks['union'][1]
+        three_query = Query.checks['union'][2]
         for form in self.forms:
             one_responses = self.check_all_inputs(form, one_query)
             two_responses = self.check_all_inputs(form, two_query)
             three_responses = self.check_all_inputs(form, three_query)
-            for one, two, three in zip(one_responses, two_responses, three_responses):
-                if len(one.text) != len(two.text) or len(one.text) != len(three.text):
-                    form.vul = True
-                    list(filter({form.inputs['name'] == res['input']}, form.inputs))[0]['vul'].append("union")
+            if one_responses and two_responses and three_responses:
+                for one, two, three in zip(one_responses, two_responses, three_responses):
+                    if len(one['response'].text) != len(two['response'].text) or len(one['response'].text) != len(three['response'].text):
+                        form.vul = True
+                        for input_field in form.inputs:
+                            if input_field['name'] == one['input']:
+                                input_field['vul'].append("union")
+                                break
 
         self.report_vulnerability()
         # Time-based
@@ -205,24 +202,26 @@ class Vaccine:
         self.add_report("=" * 70 + "\n")
 
         # Error based:
-        for check in self.queries_check:
-            self.add_report(f"=== Check: {check.key}, with: \n")
-            self.add_report(f"       -> {" \n       -> ".join(check.value)}\"")
-            self.add_report(f"\n\n")
+        for name, queries in Query.checks.items():
+            self.add_report(f"=== Check: {name}, with: \n")
+            line = ' \n       -> '
+            self.add_report(f"       -> {line.join(queries)}")
+            self.add_report(f"\n")
         
         for form in self.forms:
             self.add_report(f"== Form tested: {form.action}\n")
             table = PrettyTable()
-            list_check = ( check.key for check in self.queries_check )
-            table.field_names =  list_check.insert(0, "Input")
+            list_check = list(Query.checks.keys())
+            list_check.insert(0, "Input")
+            table.field_names = list_check
             for input in form.inputs:
                 row = [input['name']]
-                for check in list_check:
+                for check in list_check[1:]:
                     vul = "V" if check in input['vul'] else " "
                     row.append(vul)
                 table.add_row(row)
-            self.add_report(table)
-            self.add_report("\n\n")
+            self.add_report(str(table))
+            self.add_report("\n")
 
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\
