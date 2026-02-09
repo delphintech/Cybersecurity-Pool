@@ -15,9 +15,7 @@ def main():
         for f in vaccine.forms:  # DEV
             print(str(f))
         vaccine.check_vulnerability()
-        # TODO: Check for sql error message in the response
-        # TODO: Test different SQL injection with special characters 
-        #       to see if response contains SQl error indicating vulnerability
+        vaccine.extract_infos()
     except ValueError as e:
         print(str(e) + "\n\n" + Vaccine.usage)
 

