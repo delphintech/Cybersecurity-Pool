@@ -11,16 +11,17 @@ class Vaccine:
     options:\n\
         * -o <file_name>: Archive file, if not specified it will be stored in a default one\n \
         * -X <GET|POST>: Type of request, if not specified GET will be used.\n\
-        * -d <max_depth>` Maximun crawl depth. 1 by default, maximum 5\n"
+        * -d <max_depth>` Maximun crawl depth. 0 by default, maximum 5\n"
 
     def __init__(self, args):
         self.report = ""
         self.archive = "Report.txt"
         self.request = "GET"
-        self.max_depth = 1
+        self.max_depth = 0
         self.url_done = []
         self.forms = []
         self.vul = False
+        self.engine = ""
 
         i = 0
         while i < len(args):
@@ -158,6 +159,10 @@ class Vaccine:
             responses = self.check_all_inputs(form, query)
             for res in responses:
                 if res['response'].status_code == 500:
+                    # for engine, msg in Query.errors.items():  # DEV
+                    #     if msg in res['response'].text:
+                    #         self.engine = engine
+                    print(res['response'].text)  # DEV
                     form.vul = True
                     self.vul = True
                     for inp in form.inputs:
@@ -249,6 +254,7 @@ class Vaccine:
                 if not form.vul:
                     continue
                 response = self.run_query(form, query)
+                print(response)  # DEV
                 if db.lower() in response.lower():
                     return db
         return None

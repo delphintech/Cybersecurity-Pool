@@ -22,7 +22,7 @@ To provide, if possible, the following informations:
 
   - `-o <file_name>` Archive file, if not specified it will be stored in a default one
   - `-X <GET|POST>` Type of request, if not specified GET will be used.
-  - `-d <max_depth>` Maximun crawl depth. 1 by default, 5 as a maximum
+  - `-d <max_depth>` Maximun crawl depth. 0 by default, 5 as a maximum
 
 ## Test
 
@@ -30,12 +30,12 @@ To provide, if possible, the following informations:
 `make norm` 
 
 **Websites to test the program**
-`https://www.hackthissite.org/` What is tested\
+`https://www.hackthissite.org/` Too slow
 
 `http://www.itsecgames.com`
 
-`http://testphp.vulnweb.com/`
+`https://demo.owasp-juice.shop/#/`  No form founr
 
-`https://demo.owasp-juice.shop/#/`
+`http://testphp.vulnweb.com/` SQLite db with POST
 
-`https://google-gruyere.appspot.com/part1`
+`https://google-gruyere.appspot.com/part1` Microsoft db with POST

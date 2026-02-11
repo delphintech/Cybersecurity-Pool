@@ -72,8 +72,8 @@ norm: $(VENV)
 	@$(VENV)/bin/flake8 $(SRC_DIR) --exclude=$(VENV),__pycache__
 
 test: $(NAME)
-	./$(NAME) -X POST -d 0 'http://testphp.vulnweb.com/login.php'
+	./$(NAME) -X POST -d 1 'http://testphp.vulnweb.com/login.php'
 	
-
 .PHONY: activate install run clean re
 
+# 	./$(NAME) -X POST -d 0 'http://testphp.vulnweb.com/login.php'
