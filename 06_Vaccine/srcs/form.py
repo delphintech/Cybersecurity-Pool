@@ -23,7 +23,8 @@ class Form:
                         'name': input_name, 
                         'value': input_value,
                         'type': input_type,
-                        'vul': []
+                        'vul': [],
+                        'col': None
                     })
         
         for textarea in element.find_all('textarea'):

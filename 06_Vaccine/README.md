@@ -36,6 +36,9 @@ To provide, if possible, the following informations:
 
 `https://demo.owasp-juice.shop/#/`  No form founr
 
-`http://testphp.vulnweb.com/` SQLite db with POST
+`http://testphp.vulnweb.com/` MySQL db with POST
 
 `https://google-gruyere.appspot.com/part1` Microsoft db with POST
+
+
+# "https://demo.testfire.net/doLogin"
