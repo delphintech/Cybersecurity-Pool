@@ -76,4 +76,6 @@ test: $(NAME)
 	
 .PHONY: activate install run clean re
 
-# 	./$(NAME) -X POST 'http://testphp.vulnweb.com/login.php'
+# 	./$(NAME) -X POST 'https://demo.testfire.net/login.jsp'
+# ./$(NAME) -X POST 'http://testphp.vulnweb.com/login.php'
+# 	./$(NAME) -X POST -d 1 'http://testasp.vulnweb.com/'

@@ -30,15 +30,22 @@ To provide, if possible, the following informations:
 `make norm` 
 
 **Websites to test the program**
+`http://testphp.vulnweb.com/` MySQL db and POST Request
+`http://testphp.vulnweb.com/artists.php?artist=1` MySQL and GET Request
+
+`http://testasp.vulnweb.com/` 
+
 `https://www.hackthissite.org/` Too slow
 
 `http://www.itsecgames.com`
 
 `https://demo.owasp-juice.shop/#/`  No form founr
 
-`http://testphp.vulnweb.com/` MySQL db with POST
 
 `https://google-gruyere.appspot.com/part1` Microsoft db with POST
 
 
-# "https://demo.testfire.net/doLogin"
+# "https://demo.testfire.net/login.jsp"
+
+
+Error: The used SELECT statements have a different number of columns

