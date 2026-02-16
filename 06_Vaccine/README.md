@@ -39,7 +39,7 @@ To provide, if possible, the following informations:
 
 `http://www.itsecgames.com`
 
-`https://demo.owasp-juice.shop/#/`  No form founr
+`https://demo.owasp-juice.shop/#/`  No form found
 
 
 `https://google-gruyere.appspot.com/part1` Microsoft db with POST

